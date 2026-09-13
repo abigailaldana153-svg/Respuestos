@@ -413,15 +413,29 @@
 </head>
 <body>
 
-  <!-- Modal Login -->
+  <!-- Modal Login / Recuperación -->
   <div id="login-screen">
     <div class="login-card">
       <div style="font-size: 2.5rem; margin-bottom: 8px;">⚙️</div>
       <h2 style="margin-bottom: 12px;">RepuestosPro</h2>
-      <form onsubmit="handleLogin(event)">
+      
+      <!-- Formulario de Login -->
+      <form id="login-form" onsubmit="handleLogin(event)">
         <div class="form-group"><input type="email" id="login-email" placeholder="Correo" required></div>
         <div class="form-group"><input type="password" id="login-pass" placeholder="Contraseña" required></div>
         <button type="submit" class="btn-primary" style="width: 100%;">Ingresar</button>
+        <p style="margin-top: 14px;">
+          <a href="#" onclick="showResetPassword(event)" style="color: #60a5fa; font-size: 0.85rem; text-decoration: none;">¿Olvidaste tu contraseña?</a>
+        </p>
+      </form>
+
+      <!-- Formulario para Recuperar Contraseña -->
+      <form id="reset-form" style="display: none;" onsubmit="handleResetPassword(event)">
+        <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 12px;">Ingresá tu correo y definí una nueva contraseña:</p>
+        <div class="form-group"><input type="email" id="reset-email" placeholder="Correo registrado" required></div>
+        <div class="form-group"><input type="password" id="reset-new-pass" placeholder="Nueva Contraseña" required></div>
+        <button type="submit" class="btn-primary" style="width: 100%;">Guardar Nueva Contraseña</button>
+        <button type="button" class="btn-outline" style="margin-top: 8px;" onclick="hideResetPassword(event)">Volver al Login</button>
       </form>
     </div>
   </div>
@@ -579,8 +593,49 @@
     function handleLogin(e) {
       e.preventDefault();
       const email = document.getElementById('login-email').value;
+      const pass = document.getElementById('login-pass').value;
+
+      // Verifica si existe contraseña guardada; si es la primera vez para ese correo, la establece automáticamente
+      const savedPass = localStorage.getItem('user_pass_' + email);
+      
+      if (savedPass && savedPass !== pass) {
+        alert('Contraseña incorrecta. Si la olvidaste, usá el enlace de abajo para recuperarla.');
+        return;
+      }
+
+      if (!savedPass) {
+        localStorage.setItem('user_pass_' + email, pass);
+      }
+
       localStorage.setItem('autopartes_session', email);
       checkAuth();
+    }
+
+    function showResetPassword(e) {
+      e.preventDefault();
+      document.getElementById('login-form').style.display = 'none';
+      document.getElementById('reset-form').style.display = 'block';
+    }
+
+    function hideResetPassword(e) {
+      e.preventDefault();
+      document.getElementById('reset-form').style.display = 'none';
+      document.getElementById('login-form').style.display = 'block';
+    }
+
+    function handleResetPassword(e) {
+      e.preventDefault();
+      const email = document.getElementById('reset-email').value;
+      const newPass = document.getElementById('reset-new-pass').value;
+
+      if (!email || !newPass) return;
+
+      localStorage.setItem('user_pass_' + email, newPass);
+      alert('¡Contraseña actualizada con éxito! Ya podés iniciar sesión con tu nueva clave.');
+      
+      document.getElementById('reset-email').value = '';
+      document.getElementById('reset-new-pass').value = '';
+      hideResetPassword(e);
     }
 
     function renderFilterChips() {
