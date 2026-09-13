@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>RepuestosPro - Filtro por Marcas y Categorías</title>
+  <title>RepuestosPro - Filtro por Marcas</title>
   <script src="https://unpkg.com/@zxing/library@latest"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -21,10 +21,6 @@
       --text-main: #f8fafc;
       --text-muted: #94a3b8;
       --text-dim: #64748b;
-      
-      --badge-eq-bg: rgba(245, 158, 11, 0.12);
-      --badge-eq-border: rgba(245, 158, 11, 0.3);
-      --badge-eq-text: #fbbf24;
       
       --radius-lg: 20px;
       --radius-md: 14px;
@@ -47,7 +43,7 @@
       min-height: 100vh;
     }
 
-    /* Pantalla de Login */
+    /* Pantalla Login */
     #login-screen {
       position: fixed;
       top: 0; left: 0; width: 100%; height: 100%;
@@ -62,32 +58,17 @@
     .login-card {
       background: var(--card-bg);
       backdrop-filter: blur(20px);
-      -webkit-backdrop-filter: blur(20px);
       border: 1px solid var(--card-border);
       border-radius: var(--radius-lg);
       padding: 30px 24px;
       width: 100%;
       max-width: 400px;
-      box-shadow: 0 20px 50px rgba(0,0,0,0.6);
       text-align: center;
-    }
-
-    .login-title {
-      font-size: 1.5rem;
-      font-weight: 800;
-      margin-bottom: 8px;
-    }
-
-    .login-subtitle {
-      font-size: 0.85rem;
-      color: var(--text-muted);
-      margin-bottom: 24px;
     }
 
     header {
       background: rgba(15, 23, 42, 0.85);
       backdrop-filter: blur(16px);
-      -webkit-backdrop-filter: blur(16px);
       padding: 14px 20px;
       border-bottom: 1px solid var(--card-border);
       position: sticky;
@@ -99,36 +80,11 @@
     }
 
     .brand-logo {
-      display: flex;
-      align-items: center;
-      gap: 10px;
       font-weight: 800;
       font-size: 1.1rem;
-      letter-spacing: -0.5px;
       background: linear-gradient(135deg, #ffffff 0%, #94a3b8 100%);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
-    }
-
-    .user-profile-badge {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      background: rgba(255, 255, 255, 0.05);
-      border: 1px solid var(--card-border);
-      padding: 4px 10px;
-      border-radius: 20px;
-      font-size: 0.78rem;
-    }
-
-    .btn-logout {
-      background: none;
-      border: none;
-      color: #fca5a5;
-      cursor: pointer;
-      font-size: 0.78rem;
-      font-weight: 700;
-      margin-left: 4px;
     }
 
     .container {
@@ -156,8 +112,6 @@
       top: 50%;
       transform: translateY(-50%);
       color: var(--text-muted);
-      font-size: 1.1rem;
-      pointer-events: none;
     }
 
     .search-wrapper input {
@@ -168,99 +122,74 @@
       border-radius: var(--radius-md);
       color: var(--text-main);
       font-size: 0.95rem;
-      backdrop-filter: blur(10px);
-      transition: all 0.25s ease;
-      box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.2);
     }
 
-    .search-wrapper input:focus {
-      outline: none;
-      border-color: #3b82f6;
-      box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2), inset 0 2px 4px rgba(0,0,0,0.2);
-    }
-
-    /* FILTROS POR MARCA Y CATEGORÍA */
+    /* FILTROS E ÍNDICE */
     .filter-section {
-      margin-bottom: 14px;
+      margin-bottom: 16px;
     }
 
     .filter-title {
-      font-size: 0.75rem;
+      font-size: 0.78rem;
       font-weight: 700;
-      color: var(--text-muted);
+      color: #60a5fa;
       text-transform: uppercase;
       letter-spacing: 0.5px;
-      margin-bottom: 6px;
+      margin-bottom: 8px;
     }
 
     .chips-row {
       display: flex;
       gap: 8px;
       overflow-x: auto;
-      padding-bottom: 6px;
-      scrollbar-width: thin;
-    }
-
-    .chips-row::-webkit-scrollbar {
-      height: 4px;
-    }
-
-    .chips-row::-webkit-scrollbar-thumb {
-      background: rgba(255,255,255,0.2);
-      border-radius: 4px;
+      padding-bottom: 8px;
     }
 
     .chip-btn {
-      background: rgba(255, 255, 255, 0.05);
+      background: rgba(255, 255, 255, 0.06);
       border: 1px solid var(--card-border);
       color: var(--text-muted);
-      font-size: 0.8rem;
+      font-size: 0.82rem;
       font-weight: 600;
-      padding: 6px 12px;
-      border-radius: 18px;
+      padding: 8px 14px;
+      border-radius: 20px;
       white-space: nowrap;
       cursor: pointer;
       transition: all 0.2s ease;
-      display: flex;
-      align-items: center;
-      gap: 5px;
     }
 
     .chip-btn.active-brand {
       background: linear-gradient(135deg, #10b981 0%, #059669 100%);
       border-color: transparent;
-      color: #fff;
+      color: #ffffff;
       box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
     }
 
     .chip-btn.active-cat {
       background: var(--accent-gradient);
       border-color: transparent;
-      color: #fff;
+      color: #ffffff;
       box-shadow: 0 4px 12px var(--accent-glow);
     }
 
-    /* Encabezado Agrupado */
+    /* ENCABEZADOS DE GRUPO */
     .brand-group-header {
       font-size: 1.1rem;
       font-weight: 800;
       color: #34d399;
-      margin: 22px 0 10px 0;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      border-bottom: 2px solid rgba(16, 185, 129, 0.3);
+      margin: 20px 0 10px 0;
       padding-bottom: 4px;
-    }
-
-    .category-group-subheading {
-      font-size: 0.95rem;
-      font-weight: 700;
-      color: #60a5fa;
-      margin: 14px 0 10px 10px;
+      border-bottom: 2px solid rgba(16, 185, 129, 0.3);
       display: flex;
       align-items: center;
       gap: 6px;
+    }
+
+    .cat-group-subheader {
+      font-size: 0.9rem;
+      font-weight: 700;
+      color: #60a5fa;
+      margin: 12px 0 8px 8px;
     }
 
     .btn-icon {
@@ -275,8 +204,6 @@
       justify-content: center;
       font-size: 1.2rem;
       cursor: pointer;
-      transition: all 0.2s ease;
-      flex-shrink: 0;
     }
 
     .btn-primary {
@@ -293,107 +220,77 @@
       gap: 10px;
       font-size: 0.95rem;
       box-shadow: 0 4px 15px var(--accent-glow);
-      transition: all 0.25s ease;
     }
 
     .btn-outline {
       background: rgba(255, 255, 255, 0.03);
       border: 1px dashed rgba(255, 255, 255, 0.2);
       color: var(--text-main);
-      padding: 14px;
+      padding: 12px;
       border-radius: var(--radius-md);
       cursor: pointer;
       width: 100%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 10px;
+      text-align: center;
       font-weight: 600;
-      transition: all 0.2s ease;
     }
 
     .form-card {
       background: var(--card-bg);
       backdrop-filter: blur(16px);
-      -webkit-backdrop-filter: blur(16px);
       border: 1px solid var(--card-border);
       border-radius: var(--radius-lg);
       padding: 22px;
-      box-shadow: 0 10px 30px rgba(0,0,0,0.3);
-    }
-
-    .form-title {
-      font-size: 1.2rem;
-      font-weight: 800;
-      margin-bottom: 18px;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      color: var(--text-main);
     }
 
     .form-group {
-      margin-bottom: 16px;
-      text-align: left;
+      margin-bottom: 14px;
     }
 
     .form-row {
       display: flex;
-      gap: 12px;
+      gap: 10px;
     }
 
     .form-row .form-group {
       flex: 1;
     }
 
-    .form-group label {
+    label {
       display: block;
-      font-size: 0.8rem;
+      font-size: 0.78rem;
       color: var(--text-muted);
-      margin-bottom: 6px;
+      margin-bottom: 4px;
       font-weight: 600;
       text-transform: uppercase;
-      letter-spacing: 0.5px;
     }
 
-    input, select, textarea {
+    input, select {
       width: 100%;
-      padding: 12px 14px;
+      padding: 12px;
       background: var(--input-bg);
       border: 1px solid var(--card-border);
       border-radius: var(--radius-sm);
       color: var(--text-main);
       font-size: 0.95rem;
-      transition: all 0.2s ease;
-    }
-
-    input:focus, select:focus, textarea:focus {
-      outline: none;
-      border-color: #3b82f6;
-      background: rgba(15, 23, 42, 0.9);
     }
 
     /* TARJETA DE PRODUCTO */
     .product-card {
       background: var(--card-bg);
       backdrop-filter: blur(16px);
-      -webkit-backdrop-filter: blur(16px);
       border: 1px solid var(--card-border);
       border-radius: var(--radius-lg);
       padding: 16px;
-      margin-bottom: 14px;
-      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
-      position: relative;
-      overflow: hidden;
+      margin-bottom: 12px;
     }
 
     .product-img-wrapper {
       position: relative;
       width: 100%;
-      height: 190px;
+      height: 180px;
       border-radius: var(--radius-md);
       overflow: hidden;
-      margin-bottom: 12px;
+      margin-bottom: 10px;
       background: #0f172a;
       cursor: pointer;
     }
@@ -402,150 +299,63 @@
       width: 100%;
       height: 100%;
       object-fit: cover;
-      display: block;
-    }
-
-    .product-badge-cat {
-      position: absolute;
-      top: 10px;
-      left: 10px;
-      background: rgba(15, 23, 42, 0.85);
-      backdrop-filter: blur(8px);
-      color: var(--text-main);
-      font-size: 0.72rem;
-      font-weight: 700;
-      padding: 4px 10px;
-      border-radius: 20px;
-      border: 1px solid rgba(255,255,255,0.1);
-      z-index: 5;
-    }
-
-    .zoom-hint {
-      position: absolute;
-      bottom: 8px;
-      right: 8px;
-      background: rgba(0, 0, 0, 0.75);
-      color: #fff;
-      font-size: 0.75rem;
-      padding: 4px 10px;
-      border-radius: 12px;
-      font-weight: 700;
-      border: 1px solid rgba(255,255,255,0.2);
-      pointer-events: none;
-      z-index: 5;
     }
 
     .card-top {
       display: flex;
       justify-content: space-between;
       align-items: flex-start;
-      gap: 10px;
-      margin-bottom: 8px;
+      gap: 8px;
     }
 
     .product-title {
       font-size: 1.05rem;
       font-weight: 800;
-      color: var(--text-main);
-      line-height: 1.3;
-    }
-
-    .product-subtitle {
-      font-size: 0.8rem;
-      color: var(--text-muted);
-      margin-top: 2px;
-      font-weight: 500;
     }
 
     .code-chip {
-      background: rgba(59, 130, 246, 0.12);
+      background: rgba(59, 130, 246, 0.15);
       border: 1px solid rgba(59, 130, 246, 0.3);
       color: #60a5fa;
-      font-size: 0.8rem;
+      font-size: 0.78rem;
       font-weight: 700;
-      padding: 4px 10px;
-      border-radius: 8px;
-      white-space: nowrap;
+      padding: 3px 8px;
+      border-radius: 6px;
     }
 
     .compat-banner {
-      background: linear-gradient(135deg, rgba(30, 41, 59, 0.8) 0%, rgba(15, 23, 42, 0.9) 100%);
-      border: 1px solid rgba(255, 255, 255, 0.05);
+      background: rgba(15, 23, 42, 0.8);
       border-left: 3px solid #3b82f6;
-      border-radius: var(--radius-sm);
       padding: 8px 10px;
       margin: 8px 0;
+      border-radius: 6px;
       font-size: 0.85rem;
-    }
-
-    .compat-title {
-      font-size: 0.7rem;
-      color: var(--text-muted);
-      font-weight: 700;
-      text-transform: uppercase;
-      margin-bottom: 2px;
-    }
-
-    .compat-value {
-      color: #e2e8f0;
-      font-weight: 600;
-    }
-
-    .eq-chip {
-      background: var(--badge-eq-bg);
-      border: 1px solid var(--badge-eq-border);
-      color: var(--badge-eq-text);
-      font-size: 0.78rem;
-      padding: 5px 10px;
-      border-radius: 8px;
-      margin-top: 6px;
-      display: inline-block;
-      font-weight: 600;
     }
 
     .card-bottom {
       display: flex;
       justify-content: space-between;
       align-items: flex-end;
-      margin-top: 12px;
-      padding-top: 10px;
+      margin-top: 10px;
+      padding-top: 8px;
       border-top: 1px solid rgba(255, 255, 255, 0.06);
-    }
-
-    .stock-tag {
-      font-size: 0.82rem;
-      color: var(--text-muted);
-    }
-
-    .stock-tag strong {
-      color: var(--text-main);
-    }
-
-    .location-tag {
-      font-size: 0.78rem;
-      color: var(--text-dim);
-      margin-top: 2px;
     }
 
     .price-value {
       font-size: 1.2rem;
       font-weight: 800;
-      background: linear-gradient(135deg, #34d399 0%, #10b981 100%);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
+      color: #34d399;
     }
 
     .card-actions {
       display: flex;
       gap: 8px;
       margin-top: 10px;
-      padding-top: 8px;
-      border-top: 1px dashed rgba(255, 255, 255, 0.08);
     }
 
     .btn-action {
       flex: 1;
-      padding: 8px 12px;
+      padding: 8px;
       font-size: 0.8rem;
       font-weight: 700;
       border-radius: var(--radius-sm);
@@ -553,65 +363,6 @@
       background: rgba(255, 255, 255, 0.04);
       color: var(--text-main);
       cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 6px;
-    }
-
-    /* Modal Visor */
-    #image-view-modal {
-      display: none;
-      position: fixed;
-      top: 0; left: 0; width: 100%; height: 100%;
-      background: rgba(5, 8, 15, 0.95);
-      backdrop-filter: blur(16px);
-      -webkit-backdrop-filter: blur(16px);
-      z-index: 200;
-      overflow-y: auto;
-      padding: 16px;
-      box-sizing: border-box;
-    }
-
-    .image-modal-wrapper {
-      max-width: 480px;
-      margin: 20px auto;
-      background: var(--card-bg);
-      border: 1px solid var(--card-border);
-      border-radius: var(--radius-lg);
-      overflow: hidden;
-      position: relative;
-      box-shadow: 0 20px 50px rgba(0,0,0,0.8);
-    }
-
-    .image-modal-img {
-      width: 100%;
-      max-height: 380px;
-      object-fit: contain;
-      background: #000;
-      display: block;
-    }
-
-    .image-modal-body {
-      padding: 20px;
-    }
-
-    .close-modal-btn {
-      position: absolute;
-      top: 12px;
-      right: 12px;
-      width: 40px;
-      height: 40px;
-      border-radius: 50%;
-      background: rgba(0, 0, 0, 0.7);
-      color: #fff;
-      border: 1px solid rgba(255, 255, 255, 0.3);
-      font-size: 1.2rem;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      cursor: pointer;
-      z-index: 10;
     }
 
     .nav-bar {
@@ -623,12 +374,10 @@
       max-width: 480px;
       background: rgba(15, 23, 42, 0.85);
       backdrop-filter: blur(20px);
-      -webkit-backdrop-filter: blur(20px);
       border: 1px solid rgba(255, 255, 255, 0.12);
       border-radius: 30px;
       padding: 6px;
       display: flex;
-      box-shadow: 0 12px 32px rgba(0, 0, 0, 0.4);
       z-index: 30;
     }
 
@@ -642,52 +391,22 @@
       font-weight: 700;
       border-radius: 24px;
       cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 8px;
     }
 
     .nav-item.active {
       background: var(--accent-gradient);
       color: #ffffff;
-      box-shadow: 0 4px 15px var(--accent-glow);
     }
 
-    .tab-content {
-      display: none;
-    }
-
-    .tab-content.active {
-      display: block;
-    }
-
-    #scanner-modal {
-      display: none;
-      position: fixed;
-      top: 0; left: 0; right: 0; bottom: 0;
-      background: rgba(5, 8, 15, 0.95);
-      z-index: 100;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      padding: 20px;
-    }
-
-    #scanner-modal video {
-      width: 100%;
-      max-width: 360px;
-      border-radius: var(--radius-lg);
-      border: 2px solid #3b82f6;
-    }
+    .tab-content { display: none; }
+    .tab-content.active { display: block; }
 
     .photo-preview {
       width: 100%;
-      max-height: 220px;
+      max-height: 200px;
       object-fit: cover;
       border-radius: var(--radius-md);
-      margin-top: 12px;
-      border: 1px solid var(--card-border);
+      margin-top: 10px;
       display: none;
     }
   </style>
@@ -698,80 +417,66 @@
   <div id="login-screen">
     <div class="login-card">
       <div style="font-size: 2.5rem; margin-bottom: 8px;">⚙️</div>
-      <div class="login-title">RepuestosPro</div>
-      <div class="login-subtitle">Ingresá tu correo y contraseña para acceder al sistema</div>
-      
+      <h2 style="margin-bottom: 12px;">RepuestosPro</h2>
       <form onsubmit="handleLogin(event)">
-        <div class="form-group">
-          <label for="login-email">Correo Electrónico</label>
-          <input type="email" id="login-email" placeholder="ejemplo@correo.com" required>
-        </div>
-        <div class="form-group">
-          <label for="login-pass">Contraseña</label>
-          <input type="password" id="login-pass" placeholder="••••••••" required>
-        </div>
-        <button type="submit" class="btn-primary" style="width: 100%; margin-top: 10px;">Ingresar al Sistema</button>
+        <div class="form-group"><input type="email" id="login-email" placeholder="Correo" required></div>
+        <div class="form-group"><input type="password" id="login-pass" placeholder="Contraseña" required></div>
+        <button type="submit" class="btn-primary" style="width: 100%;">Ingresar</button>
       </form>
     </div>
   </div>
 
   <header>
     <div class="brand-logo">⚙️ RepuestosPro</div>
-    <div class="user-profile-badge">
-      <span id="user-display">👤 demo@correo.com</span>
-      <button class="btn-logout" onclick="logout()" title="Cerrar Sesión">🚪 Salir</button>
-    </div>
+    <div id="user-display" style="font-size: 0.8rem; color: var(--text-muted);">👤 Usuario</div>
   </header>
 
   <div class="container">
     
-    <!-- Tab Buscar -->
+    <!-- TAB BUSCAR -->
     <div id="tab-search" class="tab-content active">
       
-      <!-- Buscador -->
       <div class="search-wrapper">
         <div class="search-input-group">
           <span class="search-icon">🔍</span>
-          <input type="text" id="search-input" placeholder="Buje, soporte, modelo de auto..." oninput="filterProducts()">
+          <input type="text" id="search-input" placeholder="Buscar buje, código, modelo..." oninput="renderProducts()">
         </div>
-        <button class="btn-icon" onclick="openScanner('search')" title="Escanear código">📷</button>
       </div>
 
-      <!-- FILTRO POR MARCAS DE AUTO -->
+      <!-- ÍNDICE DE MARCAS DE AUTO -->
       <div class="filter-section">
-        <div class="filter-title">🚗 Marca de Auto / Vehículo:</div>
+        <div class="filter-title">🚗 Seleccionar Marca de Auto:</div>
         <div class="chips-row" id="brand-chips"></div>
       </div>
 
-      <!-- FILTRO POR CATEGORÍA -->
+      <!-- ÍNDICE DE CATEGORÍAS -->
       <div class="filter-section">
-        <div class="filter-title">📂 Tipo / Categoría:</div>
+        <div class="filter-title">📂 Categoría / Tipo:</div>
         <div class="chips-row" id="category-chips"></div>
       </div>
 
-      <!-- Lista de Repuestos -->
+      <!-- LISTADO DE PRODUCTOS -->
       <div id="product-list"></div>
 
     </div>
 
-    <!-- Tab Cargar / Editar -->
+    <!-- TAB CARGAR -->
     <div id="tab-add" class="tab-content">
       <div class="form-card">
-        <div class="form-title" id="form-header-title">⚡ Cargar Nuevo Repuesto</div>
+        <h3 id="form-header-title" style="margin-bottom: 16px;">⚡ Cargar Nuevo Repuesto</h3>
         
         <form id="add-form" onsubmit="saveProduct(event)">
           <input type="hidden" id="p-editing-id" value="">
 
           <div class="form-group">
-            <label for="p-name">Nombre del Repuesto / Pieza *</label>
-            <input type="text" id="p-name" placeholder="Ej: Buje de Parrilla / Soporte Motor Delantero / Foco H4" required>
+            <label>Nombre del Repuesto *</label>
+            <input type="text" id="p-name" placeholder="Ej: Buje Parrilla / Soporte Motor" required>
           </div>
 
           <div class="form-row">
             <div class="form-group">
-              <label for="p-auto-brand">Marca del Auto *</label>
+              <label>Marca del Auto *</label>
               <select id="p-auto-brand">
-                <option value="Universal / Multimarca">Universal / Multimarca</option>
                 <option value="Ford">Ford</option>
                 <option value="Fiat">Fiat</option>
                 <option value="Chevrolet">Chevrolet</option>
@@ -780,110 +485,75 @@
                 <option value="Peugeot">Peugeot</option>
                 <option value="Citroën">Citroën</option>
                 <option value="Toyota">Toyota</option>
-                <option value="Honda">Honda</option>
-                <option value="Nissan">Nissan</option>
-                <option value="Otras Marcas">Otras Marcas</option>
+                <option value="Universal / Multimarca">Universal / Multimarca</option>
               </select>
             </div>
             
             <div class="form-group">
-              <label for="p-cat">Categoría *</label>
+              <label>Categoría *</label>
               <select id="p-cat">
                 <option value="Bujes / Tacos / Gomitas">Bujes / Tacos / Gomitas</option>
                 <option value="Soportes de Motor">Soportes de Motor</option>
                 <option value="Focadura / Iluminación">Focadura / Iluminación</option>
                 <option value="Aceites / Lubricantes">Aceites / Lubricantes</option>
                 <option value="Filtros">Filtros</option>
-                <option value="Fluidos / Químicos">Fluidos / Químicos (Agua, etc.)</option>
                 <option value="Frenos">Frenos</option>
-                <option value="Baterías">Baterías</option>
-                <option value="Suspensión / Dirección">Suspensión / Dirección</option>
-                <option value="Motor / Correas">Motor / Correas</option>
                 <option value="Otros">Otros</option>
               </select>
             </div>
           </div>
 
           <div class="form-group">
-            <label for="p-brand">Marca del Repuesto (Fabricante)</label>
-            <input type="text" id="p-brand" placeholder="Ej: Sampel / Osram / Castrol / Viamonte">
+            <label>Marca del Repuesto (Fabricante)</label>
+            <input type="text" id="p-brand" placeholder="Ej: Sampel / Osram">
           </div>
 
           <div class="form-group">
-            <label for="p-apps">¿Para qué modelos sirve exactamente?</label>
-            <input type="text" id="p-apps" placeholder="Ej: Ford F100 / Perkins 6-305, Escort, Focus 1.6">
+            <label>Modelos Compatibles</label>
+            <input type="text" id="p-apps" placeholder="Ej: Escort, Focus, F100">
           </div>
 
           <div class="form-group">
-            <label for="p-eq">Equivalencias / Códigos Cruzados</label>
-            <input type="text" id="p-eq" placeholder="Ej: Mann W712, Fram PH5796">
+            <label>Equivalencias / Código Cruzado</label>
+            <input type="text" id="p-eq" placeholder="Ej: Mann W712">
           </div>
 
           <div class="form-row">
             <div class="form-group">
-              <label for="p-code">Código de Pieza / Barras</label>
-              <div style="display: flex; gap: 6px;">
-                <input type="text" id="p-code" placeholder="Ej: O50D104">
-                <button type="button" class="btn-icon" style="width:42px; height:42px; font-size:1rem;" onclick="openScanner('add')">📷</button>
-              </div>
+              <label>Código de Pieza</label>
+              <input type="text" id="p-code" placeholder="Ej: BU-104">
             </div>
             <div class="form-group">
-              <label for="p-location">Ubicación Estante</label>
+              <label>Ubicación</label>
               <input type="text" id="p-location" placeholder="Estante A2">
             </div>
           </div>
 
           <div class="form-row">
             <div class="form-group">
-              <label for="p-price">Precio ($) *</label>
-              <input type="number" id="p-price" placeholder="7000" step="0.01" required>
+              <label>Precio ($) *</label>
+              <input type="number" id="p-price" placeholder="7000" required>
             </div>
             <div class="form-group">
-              <label for="p-stock">Stock Unidades *</label>
-              <input type="number" id="p-stock" value="10" min="0" required>
+              <label>Stock *</label>
+              <input type="number" id="p-stock" value="10" required>
             </div>
           </div>
 
-          <div class="form-group" style="margin-top: 10px;">
-            <label>Foto del Producto</label>
-            <div style="display: flex; gap: 8px;">
-              <label for="camera-input" class="btn-outline" style="flex: 1;">
-                📷 / 🖼️ Elegir Foto
-              </label>
-              <button type="button" class="btn-outline" style="width: auto; padding: 0 14px;" onclick="promptImageUrl()">
-                🌐 Link
-              </button>
-            </div>
-
-            <input type="file" id="camera-input" accept="image/*" style="display: none;" onchange="handlePhotoUpload(event)">
-            <img id="photo-preview" class="photo-preview" alt="Vista previa">
+          <div class="form-group">
+            <label>Foto</label>
+            <input type="file" accept="image/*" onchange="handlePhotoUpload(event)">
+            <img id="photo-preview" class="photo-preview" alt="Vista Previa">
           </div>
 
-          <button type="submit" id="btn-submit-form" class="btn-primary" style="width: 100%; margin-top: 12px;">💾 Guardar Repuesto</button>
-          <button type="button" id="btn-cancel-edit" class="btn-outline" style="width: 100%; margin-top: 8px; display: none;" onclick="resetForm()">Cancelar Edición</button>
+          <button type="submit" id="btn-submit-form" class="btn-primary" style="width: 100%; margin-top: 10px;">💾 Guardar Repuesto</button>
+          <button type="button" id="btn-cancel-edit" class="btn-outline" style="margin-top: 8px; display: none;" onclick="resetForm()">Cancelar</button>
         </form>
       </div>
     </div>
 
   </div>
 
-  <!-- Modal Visor Foto Grande -->
-  <div id="image-view-modal">
-    <div class="image-modal-wrapper">
-      <button class="close-modal-btn" onclick="closeImageModal()">✕</button>
-      <img id="modal-img-src" class="image-modal-img" src="" alt="Foto amplia">
-      <div id="modal-img-details" class="image-modal-body"></div>
-    </div>
-  </div>
-
-  <!-- Modal Barcode Scanner -->
-  <div id="scanner-modal">
-    <p style="color:#fff; margin-bottom: 16px; font-weight: 600;">Apuntá al código de barras</p>
-    <video id="video-preview"></video>
-    <button class="btn-primary" style="margin-top: 20px; background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);" onclick="closeScanner()">Cerrar Cámara</button>
-  </div>
-
-  <!-- Nav Flotante -->
   <nav class="nav-bar">
     <button class="nav-item active" id="btn-tab-search" onclick="switchTab('search')">🔍 Buscar</button>
     <button class="nav-item" id="btn-tab-add" onclick="switchTab('add')">➕ Cargar</button>
@@ -891,97 +561,55 @@
 
   <script>
     let products = JSON.parse(localStorage.getItem('autopartes_stock') || '[]');
-    let users = JSON.parse(localStorage.getItem('autopartes_users') || '{}');
-    let codeReader = null;
-    let currentScanTarget = 'search';
     let currentPhotoBase64 = '';
-    
     let selectedBrandFilter = 'TODAS';
     let selectedCategoryFilter = 'TODAS';
 
     const BRANDS_LIST = ["TODAS", "Ford", "Fiat", "Chevrolet", "Volkswagen", "Renault", "Peugeot", "Citroën", "Toyota", "Universal / Multimarca"];
+    const CATEGORIES_LIST = ["TODAS", "Bujes / Tacos / Gomitas", "Soportes de Motor", "Focadura / Iluminación", "Aceites / Lubricantes", "Filtros", "Frenos", "Otros"];
 
-    const CATEGORIES_LIST = [
-      "TODAS",
-      "Bujes / Tacos / Gomitas",
-      "Soportes de Motor",
-      "Focadura / Iluminación",
-      "Aceites / Lubricantes",
-      "Filtros",
-      "Fluidos / Químicos",
-      "Frenos",
-      "Baterías",
-      "Suspensión / Dirección",
-      "Motor / Correas",
-      "Otros"
-    ];
-
-    // Control de Sesión
     function checkAuth() {
       const activeUser = localStorage.getItem('autopartes_session');
       if (activeUser) {
         document.getElementById('login-screen').style.display = 'none';
         document.getElementById('user-display').innerText = `👤 ${activeUser}`;
-      } else {
-        document.getElementById('login-screen').style.display = 'flex';
       }
     }
 
     function handleLogin(e) {
       e.preventDefault();
-      const email = document.getElementById('login-email').value.trim();
-      const pass = document.getElementById('login-pass').value.trim();
-
-      if (!email || !pass) return;
-
-      if (users[email]) {
-        if (users[email] === pass) {
-          localStorage.setItem('autopartes_session', email);
-          checkAuth();
-        } else {
-          alert('⚠️ Contraseña incorrecta.');
-        }
-      } else {
-        users[email] = pass;
-        localStorage.setItem('autopartes_users', JSON.stringify(users));
-        localStorage.setItem('autopartes_session', email);
-        alert('✅ Usuario registrado exitosamente.');
-        checkAuth();
-      }
-    }
-
-    function logout() {
-      localStorage.removeItem('autopartes_session');
+      const email = document.getElementById('login-email').value;
+      localStorage.setItem('autopartes_session', email);
       checkAuth();
     }
 
     function renderFilterChips() {
-      // Marcas
       const bContainer = document.getElementById('brand-chips');
       bContainer.innerHTML = '';
       BRANDS_LIST.forEach(b => {
         const btn = document.createElement('button');
+        btn.type = 'button';
         btn.className = `chip-btn ${selectedBrandFilter === b ? 'active-brand' : ''}`;
-        btn.innerHTML = `🚗 ${b}`;
+        btn.innerText = `🚗 ${b}`;
         btn.onclick = () => {
           selectedBrandFilter = b;
           renderFilterChips();
-          filterProducts();
+          renderProducts();
         };
         bContainer.appendChild(btn);
       });
 
-      // Categorías
       const cContainer = document.getElementById('category-chips');
       cContainer.innerHTML = '';
       CATEGORIES_LIST.forEach(cat => {
         const btn = document.createElement('button');
+        btn.type = 'button';
         btn.className = `chip-btn ${selectedCategoryFilter === cat ? 'active-cat' : ''}`;
-        btn.innerHTML = `📂 ${cat}`;
+        btn.innerText = `📂 ${cat}`;
         btn.onclick = () => {
           selectedCategoryFilter = cat;
           renderFilterChips();
-          filterProducts();
+          renderProducts();
         };
         cContainer.appendChild(btn);
       });
@@ -1001,56 +629,30 @@
       }
     }
 
-    function promptImageUrl() {
-      const url = prompt('Pegá la dirección de la foto de Internet:');
-      if (url) {
-        currentPhotoBase64 = url;
-        const imgPreview = document.getElementById('photo-preview');
-        imgPreview.src = url;
-        imgPreview.style.display = 'block';
-      }
-    }
-
     function saveProduct(e) {
       e.preventDefault();
       const editingId = document.getElementById('p-editing-id').value;
 
-      const autoBrand = document.getElementById('p-auto-brand').value;
+      const newProd = {
+        id: editingId ? Number(editingId) : Date.now(),
+        name: document.getElementById('p-name').value,
+        autoBrand: document.getElementById('p-auto-brand').value,
+        brand: document.getElementById('p-brand').value || 'Genérico',
+        category: document.getElementById('p-cat').value,
+        applications: document.getElementById('p-apps').value || 'Varias',
+        equivalences: document.getElementById('p-eq').value || '',
+        code: document.getElementById('p-code').value || 'S/C',
+        location: document.getElementById('p-location').value || 'Sin ubicación',
+        price: parseFloat(document.getElementById('p-price').value) || 0,
+        stock: parseInt(document.getElementById('p-stock').value) || 0,
+        photo: currentPhotoBase64
+      };
 
       if (editingId) {
-        const index = products.findIndex(p => p.id == editingId);
-        if (index !== -1) {
-          products[index] = {
-            id: Number(editingId),
-            name: document.getElementById('p-name').value,
-            autoBrand: autoBrand,
-            brand: document.getElementById('p-brand').value || 'Genérico',
-            category: document.getElementById('p-cat').value,
-            applications: document.getElementById('p-apps').value || 'Universal / Multimarca',
-            equivalences: document.getElementById('p-eq').value,
-            code: document.getElementById('p-code').value || 'S/C',
-            location: document.getElementById('p-location').value || 'Sin ubicación',
-            price: parseFloat(document.getElementById('p-price').value) || 0,
-            stock: parseInt(document.getElementById('p-stock').value) || 0,
-            photo: currentPhotoBase64 || products[index].photo
-          };
-        }
+        const idx = products.findIndex(p => p.id == editingId);
+        if (idx !== -1) products[idx] = newProd;
       } else {
-        const newProduct = {
-          id: Date.now(),
-          name: document.getElementById('p-name').value,
-          autoBrand: autoBrand,
-          brand: document.getElementById('p-brand').value || 'Genérico',
-          category: document.getElementById('p-cat').value,
-          applications: document.getElementById('p-apps').value || 'Universal / Multimarca',
-          equivalences: document.getElementById('p-eq').value,
-          code: document.getElementById('p-code').value || 'S/C',
-          location: document.getElementById('p-location').value || 'Sin ubicación',
-          price: parseFloat(document.getElementById('p-price').value) || 0,
-          stock: parseInt(document.getElementById('p-stock').value) || 0,
-          photo: currentPhotoBase64
-        };
-        products.unshift(newProduct);
+        products.unshift(newProd);
       }
 
       localStorage.setItem('autopartes_stock', JSON.stringify(products));
@@ -1059,81 +661,104 @@
       renderProducts();
     }
 
+    function renderProducts() {
+      const list = document.getElementById('product-list');
+      list.innerHTML = '';
+
+      const term = document.getElementById('search-input').value.toLowerCase().trim();
+
+      const filtered = products.filter(p => {
+        const autoB = p.autoBrand || 'Universal / Multimarca';
+        const matchBrand = (selectedBrandFilter === 'TODAS') || (autoB === selectedBrandFilter);
+        const matchCat = (selectedCategoryFilter === 'TODAS') || (p.category === selectedCategoryFilter);
+        const matchSearch = p.name.toLowerCase().includes(term) ||
+          p.code.toLowerCase().includes(term) ||
+          (p.applications && p.applications.toLowerCase().includes(term));
+
+        return matchBrand && matchCat && matchSearch;
+      });
+
+      if (filtered.length === 0) {
+        list.innerHTML = `<p style="text-align:center; padding:30px; color:var(--text-muted);">No hay repuestos registrados bajo esta marca o filtro.</p>`;
+        return;
+      }
+
+      // Agrupar por Marca
+      const grouped = {};
+      filtered.forEach(p => {
+        const b = p.autoBrand || 'Universal / Multimarca';
+        if (!grouped[b]) grouped[b] = [];
+        grouped[b].push(p);
+      });
+
+      for (const [brandName, items] of Object.entries(grouped)) {
+        const header = document.createElement('div');
+        header.className = 'brand-group-header';
+        header.innerHTML = `🚗 MARCA: ${brandName.toUpperCase()}`;
+        list.appendChild(header);
+
+        items.forEach(p => {
+          const card = document.createElement('div');
+          card.className = 'product-card';
+          card.innerHTML = `
+            ${p.photo ? `<div class="product-img-wrapper"><img src="${p.photo}" class="product-img"></div>` : ''}
+            <div class="card-top">
+              <div>
+                <div class="product-title">${p.name}</div>
+                <div style="font-size:0.8rem; color:var(--text-muted);">${p.brand} • ${p.category}</div>
+              </div>
+              <div class="code-chip">${p.code}</div>
+            </div>
+            <div class="compat-banner">🚗 Para: <strong>${p.applications}</strong></div>
+            <div class="card-bottom">
+              <div>Stock: <strong>${p.stock} u.</strong> | 📍 ${p.location}</div>
+              <div class="price-value">$${p.price.toLocaleString('es-AR')}</div>
+            </div>
+            <div class="card-actions">
+              <button class="btn-action" onclick="editProduct(${p.id})">✏️ Editar</button>
+              <button class="btn-action" onclick="deleteProduct(${p.id})" style="color:#fca5a5;">🗑️ Borrar</button>
+            </div>
+          `;
+          list.appendChild(card);
+        });
+      }
+    }
+
     function editProduct(id) {
-      const prod = products.find(p => p.id == id);
-      if (!prod) return;
+      const p = products.find(prod => prod.id == id);
+      if (!p) return;
 
-      document.getElementById('p-editing-id').value = prod.id;
-      document.getElementById('p-name').value = prod.name;
-      document.getElementById('p-auto-brand').value = prod.autoBrand || 'Universal / Multimarca';
-      document.getElementById('p-brand').value = prod.brand === 'Genérico' ? '' : prod.brand;
-      document.getElementById('p-cat').value = prod.category;
-      document.getElementById('p-apps').value = prod.applications === 'Universal / Multimarca' ? '' : prod.applications;
-      document.getElementById('p-eq').value = prod.equivalences || '';
-      document.getElementById('p-code').value = prod.code === 'S/C' ? '' : prod.code;
-      document.getElementById('p-location').value = prod.location === 'Sin ubicación' ? '' : prod.location;
-      document.getElementById('p-price').value = prod.price;
-      document.getElementById('p-stock').value = prod.stock;
+      document.getElementById('p-editing-id').value = p.id;
+      document.getElementById('p-name').value = p.name;
+      document.getElementById('p-auto-brand').value = p.autoBrand || 'Ford';
+      document.getElementById('p-cat').value = p.category;
+      document.getElementById('p-brand').value = p.brand;
+      document.getElementById('p-apps').value = p.applications;
+      document.getElementById('p-eq').value = p.equivalences || '';
+      document.getElementById('p-code').value = p.code;
+      document.getElementById('p-location').value = p.location;
+      document.getElementById('p-price').value = p.price;
+      document.getElementById('p-stock').value = p.stock;
 
-      currentPhotoBase64 = prod.photo || '';
-      const imgPreview = document.getElementById('photo-preview');
+      currentPhotoBase64 = p.photo || '';
       if (currentPhotoBase64) {
-        imgPreview.src = currentPhotoBase64;
-        imgPreview.style.display = 'block';
-      } else {
-        imgPreview.style.display = 'none';
+        document.getElementById('photo-preview').src = currentPhotoBase64;
+        document.getElementById('photo-preview').style.display = 'block';
       }
 
       document.getElementById('form-header-title').innerText = '✏️ Editar Repuesto';
-      document.getElementById('btn-submit-form').innerText = '💾 Actualizar Cambios';
+      document.getElementById('btn-submit-form').innerText = '💾 Actualizar';
       document.getElementById('btn-cancel-edit').style.display = 'block';
 
       switchTab('add');
     }
 
     function deleteProduct(id) {
-      if (confirm('¿Borrar este repuesto?')) {
+      if (confirm('¿Borrar repuesto?')) {
         products = products.filter(p => p.id != id);
         localStorage.setItem('autopartes_stock', JSON.stringify(products));
         renderProducts();
       }
-    }
-
-    function openImageModal(id) {
-      const prod = products.find(p => p.id == id);
-      if (!prod || !prod.photo) return;
-
-      document.getElementById('modal-img-src').src = prod.photo;
-      document.getElementById('modal-img-details').innerHTML = `
-        <div class="card-top">
-          <div>
-            <div class="product-title" style="font-size: 1.2rem;">${prod.name}</div>
-            <div class="product-subtitle">${prod.brand} • ${prod.category}</div>
-          </div>
-          <div class="code-chip">${prod.code}</div>
-        </div>
-
-        <div class="compat-banner">
-          <div class="compat-title">🚗 Compatible con (${prod.autoBrand || 'Multimarca'}):</div>
-          <div class="compat-value">${prod.applications}</div>
-        </div>
-
-        ${prod.equivalences ? `<div style="margin-bottom: 12px;"><span class="eq-chip">🔄 Eq: ${prod.equivalences}</span></div>` : ''}
-
-        <div class="card-bottom">
-          <div>
-            <div class="stock-tag">Stock: <strong>${prod.stock} u.</strong></div>
-            <div class="location-tag">📍 ${prod.location}</div>
-          </div>
-          <div class="price-value" style="font-size: 1.35rem;">$${prod.price.toLocaleString('es-AR')}</div>
-        </div>
-      `;
-
-      document.getElementById('image-view-modal').style.display = 'block';
-    }
-
-    function closeImageModal() {
-      document.getElementById('image-view-modal').style.display = 'none';
     }
 
     function resetForm() {
@@ -1144,116 +769,6 @@
       document.getElementById('form-header-title').innerText = '⚡ Cargar Nuevo Repuesto';
       document.getElementById('btn-submit-form').innerText = '💾 Guardar Repuesto';
       document.getElementById('btn-cancel-edit').style.display = 'none';
-    }
-
-    function renderProducts(filter = '') {
-      const list = document.getElementById('product-list');
-      list.innerHTML = '';
-
-      const term = filter.toLowerCase().trim();
-
-      // Filtrar
-      let filtered = products.filter(p => {
-        const autoB = p.autoBrand || 'Universal / Multimarca';
-        const matchBrand = (selectedBrandFilter === 'TODAS') || (autoB === selectedBrandFilter);
-        const matchCat = (selectedCategoryFilter === 'TODAS') || (p.category === selectedCategoryFilter);
-        
-        const matchSearch = p.name.toLowerCase().includes(term) ||
-          p.code.toLowerCase().includes(term) ||
-          autoB.toLowerCase().includes(term) ||
-          (p.equivalences && p.equivalences.toLowerCase().includes(term)) ||
-          (p.applications && p.applications.toLowerCase().includes(term)) ||
-          (p.brand && p.brand.toLowerCase().includes(term));
-
-        return matchBrand && matchCat && matchSearch;
-      });
-
-      if (filtered.length === 0) {
-        list.innerHTML = `
-          <div style="text-align:center; padding: 40px 20px; color: var(--text-muted);">
-            <div style="font-size: 2.5rem; margin-bottom: 10px;">📦</div>
-            <p style="font-weight: 600;">No hay repuestos que coincidan con los filtros o la búsqueda.</p>
-          </div>
-        `;
-        return;
-      }
-
-      // Agrupar por Marca de Auto y luego por Categoría
-      const groupedByBrand = {};
-      filtered.forEach(p => {
-        const b = p.autoBrand || 'Universal / Multimarca';
-        if (!groupedByBrand[b]) groupedByBrand[b] = {};
-        
-        const c = p.category || 'Otros';
-        if (!groupedByBrand[b][c]) groupedByBrand[b][c] = [];
-
-        groupedByBrand[b][c].push(p);
-      });
-
-      // Dibujar Índice
-      for (const [brandName, categoriesObj] of Object.entries(groupedByBrand)) {
-        
-        const brandHeader = document.createElement('div');
-        brandHeader.className = 'brand-group-header';
-        brandHeader.innerHTML = `<span>🚗 MARCA: ${brandName.toUpperCase()}</span>`;
-        list.appendChild(brandHeader);
-
-        for (const [catName, items] of Object.entries(categoriesObj)) {
-          
-          const catSubheader = document.createElement('div');
-          catSubheader.className = 'category-group-subheading';
-          catSubheader.innerHTML = `<span>📂 ${catName}</span> <span style="font-size:0.75rem; color:var(--text-muted);">(${items.length})</span>`;
-          list.appendChild(catSubheader);
-
-          items.forEach(p => {
-            const card = document.createElement('div');
-            card.className = 'product-card';
-            card.innerHTML = `
-              ${p.photo ? `
-                <div class="product-img-wrapper" onclick="openImageModal(${p.id})">
-                  <span class="product-badge-cat">${p.category}</span>
-                  <img src="${p.photo}" class="product-img" alt="${p.name}">
-                  <div class="zoom-hint">🔍 Ampliar Foto</div>
-                </div>
-              ` : ''}
-              
-              <div class="card-top">
-                <div>
-                  <div class="product-title">${p.name}</div>
-                  <div class="product-subtitle">${p.brand} ${!p.photo ? '• ' + p.category : ''}</div>
-                </div>
-                <div class="code-chip">${p.code}</div>
-              </div>
-
-              <div class="compat-banner">
-                <div class="compat-title">🚗 Compatible con (${p.autoBrand || 'Multimarca'}):</div>
-                <div class="compat-value">${p.applications}</div>
-              </div>
-              
-              ${p.equivalences ? `<div><span class="eq-chip">🔄 Eq: ${p.equivalences}</span></div>` : ''}
-
-              <div class="card-bottom">
-                <div>
-                  <div class="stock-tag">Stock: <strong>${p.stock} u.</strong></div>
-                  <div class="location-tag">📍 ${p.location}</div>
-                </div>
-                <div class="price-value">$${p.price.toLocaleString('es-AR')}</div>
-              </div>
-
-              <div class="card-actions">
-                <button class="btn-action" onclick="editProduct(${p.id})">✏️ Editar / Foto</button>
-                <button class="btn-action" onclick="deleteProduct(${p.id})" style="color: #fca5a5;">🗑️ Borrar</button>
-              </div>
-            `;
-            list.appendChild(card);
-          });
-        }
-      }
-    }
-
-    function filterProducts() {
-      const term = document.getElementById('search-input').value;
-      renderProducts(term);
     }
 
     function switchTab(tab) {
@@ -1269,35 +784,12 @@
       }
     }
 
-    function openScanner(target) {
-      currentScanTarget = target;
-      document.getElementById('scanner-modal').style.display = 'flex';
-      codeReader = new ZXing.BrowserMultiFormatReader();
-      
-      codeReader.decodeFromVideoDevice(null, 'video-preview', (result, err) => {
-        if (result) {
-          const code = result.text;
-          closeScanner();
-
-          if (currentScanTarget === 'search') {
-            document.getElementById('search-input').value = code;
-            filterProducts();
-          } else {
-            document.getElementById('p-code').value = code;
-          }
-        }
-      });
-    }
-
-    function closeScanner() {
-      if (codeReader) codeReader.reset();
-      document.getElementById('scanner-modal').style.display = 'none';
-    }
-
-    // Inicializar
-    checkAuth();
-    renderFilterChips();
-    renderProducts();
+    // Inicializar al cargar
+    window.onload = function() {
+      checkAuth();
+      renderFilterChips();
+      renderProducts();
+    };
   </script>
 </body>
 </html>
