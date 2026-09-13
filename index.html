@@ -1,330 +1,57 @@
 import 'package:flutter/material.dart';
-import 'package:mobile_scanner/mobile_scanner.dart'; // Librería de escáner en tiempo real
+import 'package:mobile_scanner/mobile_scanner.dart'; // Librería popular de escáner
 
-void main() {
-  runApp(MyApp());
-}
-
-class MyApp extends StatelessWidget {
+class PantallaEscaner extends StatefulWidget {
   @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Stock & Ventas Multi-Rubro',
-      theme: ThemeData(
-        primarySwatch: Colors.indigo,
-        useMaterial3: true,
-      ),
-      initialRoute: '/',
-      routes: {
-        '/': (context) => DashboardScreen(),
-        '/escaner': (context) => ScannerScreen(),
-        '/nuevo-producto': (context) => ProductFormScreen(),
-      },
-    );
-  }
+  _PantallaEscanerState createState() => _PantallaEscanerState();
 }
 
-// ==========================================
-// 1. PANTALLA PRINCIPAL / DASHBOARD
-// ==========================================
-class DashboardScreen extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('Control de Stock & Mostrador'),
-        actions: [
-          IconButton(
-            icon: Icon(Icons.notifications_active, color: Colors.orange),
-            onPressed: () {
-              // Aquí se abriría la lista de productos con stock bajo
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(content: Text("🚨 Alerta: 3 productos por debajo del stock mínimo")),
-              );
-            },
-          )
-        ],
-      ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            // Banner de Alertas de Reposición
-            Container(
-              padding: EdgeInsets.all(12),
-              decoration: BoxDecoration(
-                color: Colors.red.shade50,
-                border: Border.all(color: Colors.red.shade200),
-                borderRadius: BorderRadius.circular(8),
-              ),
-              child: Row(
-                children: [
-                  Icon(Icons.warning_amber_rounded, color: Colors.red, size: 30),
-                  SizedBox(width: 12),
-                  Expanded(
-                    child: Text(
-                      "Atención: Hay productos agotándose o sin stock para reponer.",
-                      style: TextStyle(color: Colors.red.shade800, fontWeight: FontWeight.bold),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            SizedBox(height: 24),
-            
-            // Botón Gigante de Escáner Instantáneo (Ventas / Control)
-            ElevatedButton.icon(
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.indigo,
-                foregroundColor: Colors.white,
-                padding: EdgeInsets.symmetric(vertical: 20),
-                textStyle: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-              ),
-              icon: Icon(Icons.qr_code_scanner, size: 28),
-              label: Text("ESCANEAR CÓDIGO (VENTA / ENTRADA)"),
-              onPressed: () {
-                Navigator.pushNamed(context, '/escaner');
-              },
-            ),
-            SizedBox(height: 16),
-            
-            // Botón para agregar producto manual
-            OutlinedButton.icon(
-              style: OutlinedButton.styleFrom(
-                padding: EdgeInsets.symmetric(vertical: 16),
-              ),
-              icon: Icon(Icons.add_box),
-              label: Text("Registrar Producto Manualmente"),
-              onPressed: () {
-                Navigator.pushNamed(context, '/nuevo-producto');
-              },
-            ),
-            SizedBox(height: 24),
-            
-            Text("Últimos movimientos / Ventas:", style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
-            Expanded(
-              child: ListView(
-                children: [
-                  ListTile(
-                    leading: CircleAvatar(backgroundColor: Colors.green.shade100, child: Icon(Icons.sell, color: Colors.green)),
-                    title: Text("Filtro de Aceite / Remera Algodón"),
-                    subtitle: Text("Venta realizada hace 5 mins (-1 stock)"),
-                    trailing: Text("\$ 15,000", style: TextStyle(fontWeight: FontWeight.bold)),
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-// ==========================================
-// 2. PANTALLA DE ESCÁNER INSTANTÁNEO
-// ==========================================
-class ScannerScreen extends StatefulWidget {
-  @override
-  _ScannerScreenState createState() => _ScannerScreenState();
-}
-
-class _ScannerScreenState extends State<ScannerScreen> {
+class _PantallaEscanerState extends State<PantallaEscaner> {
   bool _procesando = false;
 
   void _manejarCodigoDetectado(String codigoBarras) async {
     if (_procesando) return;
     setState(() { _procesando = true; });
 
-    // Simulación de búsqueda en base de datos local o nube (Firebase)
-    // Supongamos que buscamos si el código existe:
-    bool productoExiste = await _verificarSiExisteEnBD(codigoBarras);
+    // 1. Buscar en la Base de Datos si el producto existe con este código de barras
+    var producto = await buscarProductoEnBD(codigoBarras);
 
-    if (!mounted) return;
-
-    if (productoExiste) {
-      // SI EXISTE: Descuenta stock o suma a la venta al instante
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("✅ Producto encontrado. Stock descontado con éxito.")),
-      );
-      Navigator.pop(context);
+    if (producto != null) {
+      // 2. Si existe: Agregar a la venta o mostrar detalles
+      _mostrarModalVentaOStock(producto);
     } else {
-      // NO EXISTE: Te manda al formulario con el código ya cargado para darlo de alta
-      Navigator.pushReplacementNamed(
-        context, 
-        '/nuevo-producto', 
-        arguments: codigoBarras,
-      );
+      // 3. Si no existe: Redirigir a la pantalla de creación con el código precargado
+      Navigator.pushNamed(context, '/nuevo-producto', arguments: codigoBarras);
     }
-  }
 
-  Future<bool> _verificarSiExisteEnBD(String codigo) async {
-    await Future.delayed(Duration(seconds: 1)); // Simula consulta rápida
-    return false; // Devolvemos falso para probar el alta de nuevos productos
+    setState(() { _procesando = false; });
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text("Escaneando Código de Barras...")),
+      appBar: AppBar(title: Text("Escanear Producto o Venta")),
       body: MobileScanner(
         onDetect: (capture) {
           final List<Barcode> barcodes = capture.barcodes;
           for (final barcode in barcodes) {
             if (barcode.rawValue != null) {
               _manejarCodigoDetectado(barcode.rawValue!);
-              break; 
+              break; // Tomar el primero detectado
             }
           }
         },
       ),
     );
   }
-}
-
-// ==========================================
-// 3. PANTALLA DE FORMULARIO / ALTA DE PRODUCTO
-// ==========================================
-class ProductFormScreen extends StatefulWidget {
-  @override
-  _ProductFormScreenState createState() => _ProductFormScreenState();
-}
-
-class _ProductFormScreenState extends State<ProductFormScreen> {
-  final _nombreController = TextEditingController();
-  final _codigoController = TextEditingController();
-  final _descripcionController = TextEditingController();
-  final _precioController = TextEditingController();
-  final _stockController = TextEditingController();
-  final _stockMinimoController = TextEditingController();
   
-  String categoriaSeleccionada = 'Repuestos / Ferretería';
-
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    // Si viene un código desde el escáner, lo autocompleta al instante
-    final String? codigoEscaneado = ModalRoute.of(context)?.settings.arguments as String?;
-    if (codigoEscaneado != null) {
-      _codigoController.text = codigoEscaneado;
-    }
+  // Simulación de funciones de base de datos
+  Future<dynamic> buscarProductoEnBD(String codigo) async {
+    // Consulta a Firebase / Base de datos local
+    return null; 
   }
 
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: Text("Alta / Edición de Producto")),
-      body: ListView(
-        padding: EdgeInsets.all(16),
-        children: [
-          // Sección de Foto del Producto
-          Center(
-            child: Stack(
-              children: [
-                Container(
-                  width: 120,
-                  height: 120,
-                  decoration: BoxDecoration(
-                    color: Colors.grey.shade200,
-                    borderRadius: BorderRadius.circular(12),
-                    border: Border.all(color: Colors.grey.shade400),
-                  ),
-                  child: Icon(Icons.camera_alt, size: 50, color: Colors.grey),
-                ),
-                Positioned(
-                  bottom: 0,
-                  right: 0,
-                  child: CircleAvatar(
-                    backgroundColor: Colors.indigo,
-                    child: Icon(Icons.add, color: Colors.white),
-                  ),
-                )
-              ],
-            ),
-          ),
-          SizedBox(height: 16),
-          
-          TextField(
-            controller: _codigoController,
-            decoration: InputDecoration(labelText: "Código de Barras (Escaneado)", border: OutlineInputBorder()),
-          ),
-          SizedBox(height: 12),
-
-          TextField(
-            controller: _nombreController,
-            decoration: InputDecoration(labelText: "Nombre del Producto (ej: Pastilla de freno / Remera)", border: OutlineInputBorder()),
-          ),
-          SizedBox(height: 12),
-
-          DropdownButtonFormField<String>(
-            value: categoriaSeleccionada,
-            decoration: InputDecoration(labelText: "Categoría del Negocio", border: OutlineInputBorder()),
-            items: ['Repuestos / Ferretería', 'Indumentaria / Ropa', 'Almacén / Mercadería', 'Otro']
-                .map((cat) => DropdownMenuItem(value: cat, child: Text(cat)))
-                .toList(),
-            onChanged: (val) {
-              setState(() { categoriaSeleccionada = val!; });
-            },
-          ),
-          SizedBox(height: 12),
-
-          TextField(
-            controller: _descripcionController,
-            maxLines: 3,
-            decoration: InputDecoration(labelText: "Descripción detallada (Materiales, ubicación, talle, etc.)", border: OutlineInputBorder()),
-          ),
-          SizedBox(height: 12),
-
-          Row(
-            children: [
-              Expanded(
-                child: TextField(
-                  controller: _precioController,
-                  keyboardType: TextInputType.number,
-                  decoration: InputDecoration(labelText: "Precio de Venta", border: OutlineInputBorder()),
-                ),
-              ),
-              SizedBox(width: 12),
-              Expanded(
-                child: TextField(
-                  controller: _stockController,
-                  keyboardType: TextInputType.number,
-                  decoration: InputDecoration(labelText: "Stock Inicial", border: OutlineInputBorder()),
-                ),
-              ),
-            ],
-          ),
-          SizedBox(height: 12),
-
-          TextField(
-            controller: _stockMinimoController,
-            keyboardType: TextInputType.number,
-            decoration: InputDecoration(
-              labelText: "Stock Mínimo (Alerta de Reposición)", 
-              hintText: "Ej: Si llega a 3 unidades, avisa",
-              border: OutlineInputBorder(),
-            ),
-          ),
-          SizedBox(height: 24),
-
-          ElevatedButton(
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.green,
-              foregroundColor: Colors.white,
-              padding: EdgeInsets.symmetric(vertical: 16),
-            ),
-            child: Text("GUARDAR PRODUCTO AL INSTANTE", style: TextStyle(fontSize: 16)),
-            onPressed: () {
-              // Lógica para guardar en Base de datos y volver al inicio
-              Navigator.pop(context);
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(content: Text("🚀 Producto guardado y sincronizado con éxito")),
-              );
-            },
-          ),
-        ],
-      ),
-    );
+  void _mostrarModalVentaOStock(dynamic producto) {
+    // Lógica para registrar venta o sumar unidades
   }
 }
