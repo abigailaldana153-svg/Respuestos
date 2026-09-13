@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>RepuestoStock</title>
+  <meta name="theme-color" content="#0f172a">
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+    body { background-color: #0f172a; color: #f8fafc; padding: 16px; max-width: 480px; margin: 0 auto; }
+    
+    header { display: flex; justify-content: space-between; align-items: center; padding-bottom: 14px; border-bottom: 1px solid #334155; margin-bottom: 16px; }
+    h1 { font-size: 1.3rem; color: #f59e0b; font-weight: 800; display: flex; align-items: center; gap: 6px; }
+    .badge-count { background: #1e293b; color: #94a3b8; padding: 4px 10px; border-radius: 20px; font-size: 0.8rem; font-weight: 600; border: 1px solid #334155; }
+
+    .nav { display: flex; gap: 8px; margin-bottom: 16px; }
+    .btn-tab { flex: 1; padding: 12px; border: none; border-radius: 10px; font-weight: 700; cursor: pointer; transition: 0.2s; font-size: 0.9rem; }
+    .btn-active { background: #f59e0b; color: #0f172a; }
+    .btn-inactive { background: #1e293b; color: #94a3b8; border: 1px solid #334155; }
+
+    .search-input, .select-input { width: 100%; padding: 12px; border-radius: 10px; border: 1px solid #334155; background: #1e293b; color: #fff; font-size: 0.9rem; margin-bottom: 10px; }
+    .search-input:focus, .select-input:focus { border-color: #f59e0b; outline: none; }
+
+    .filter-group { display: flex; gap: 8px; margin-bottom: 12px; }
+
+    .card { background: #1e293b; border-radius: 12px; padding: 14px; margin-bottom: 12px; border: 1px solid #334155; position: relative; }
+    .card-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 6px; }
+    .title { font-weight: 700; font-size: 1rem; color: #f8fafc; flex: 1; padding-right: 8px; }
+    .code { font-size: 0.75rem; color: #f59e0b; background: #0f172a; padding: 3px 8px; border-radius: 6px; font-family: monospace; border: 1px solid #334155; }
+    .info { font-size: 0.85rem; color: #94a3b8; margin-top: 4px; display: flex; align-items: center; gap: 6px; }
+    .tag { background: #334155; color: #f1f5f9; padding: 2px 6px; border-radius: 4px; font-size: 0.75rem; font-weight: 600; }
+    
+    .card-footer { display: flex; justify-content: space-between; align-items: flex-end; margin-top: 12px; padding-top: 10px; border-top: 1px solid #334155; }
+    .price { font-size: 1.2rem; font-weight: 800; color: #10b981; }
+    .stock { font-size: 0.8rem; font-weight: 700; margin-top: 2px; }
+    .stock-ok { color: #10b981; }
+    .stock-low { color: #ef4444; }
+
+    .btn-wa { background: #25d366; color: #fff; border: none; padding: 8px 12px; border-radius: 8px; font-size: 0.8rem; font-weight: 700; cursor: pointer; display: flex; align-items: center; gap: 4px; }
+
+    .form-group { margin-bottom: 12px; }
+    label { font-size: 0.8rem; color: #94a3b8; font-weight: 600; display: block; margin-bottom: 6px; }
+    input, select { width: 100%; padding: 12px; border-radius: 8px; border: 1px solid #334155; background: #0f172a; color: #fff; font-size: 0.9rem; }
+    input:focus, select:focus { border-color: #f59e0b; outline: none; }
+
+    .btn-submit { background: #10b981; color: #fff; border: none; width: 100%; padding: 14px; border-radius: 10px; font-weight: 800; font-size: 1rem; cursor: pointer; margin-top: 8px; }
+    .hidden { display: none; }
+  </style>
+</head>
+<body>
+
+  <header>
+    <h1>⚙️ RepuestoStock</h1>
+    <span class="badge-count" id="count">0 Piezas</span>
+  </header>
+
+  <div class="nav">
+    <button class="btn-tab btn-active" id="tab-search-btn" onclick="setTab('search')">🔍 Buscar Stock</button>
+    <button class="btn-tab btn-inactive" id="tab-add-btn" onclick="setTab('add')">➕ Cargar Artículo</button>
+  </div>
+
+  <div id="view-search">
+    <input type="text" class="search-input" id="search" placeholder="Buscar aceite, foco, corsa, código..." onkeyup="filterData()">
+    
+    <div class="filter-group">
+      <select class="select-input" id="filter-brand" onchange="filterData()">
+        <option value="">Todas las Marcas</option>
+        <option value="Universal / Multimarca">Universal / Multimarca</option>
+        <option value="Chevrolet">Chevrolet</option>
+        <option value="Volkswagen">Volkswagen</option>
+        <option value="Fiat">Fiat</option>
+        <option value="Peugeot">Peugeot</option>
+        <option value="Renault">Renault</option>
+        <option value="Ford">Ford</option>
+      </select>
+
+      <select class="select-input" id="filter-category" onchange="filterData()">
+        <option value="">Todas las Categ.</option>
+        <option value="Lubricantes y Fluidos">Lubricantes y Fluidos</option>
+        <option value="Electricidad e Iluminación">Electricidad / Focos</option>
+        <option value="Filtros">Filtros</option>
+        <option value="Frenos">Frenos</option>
+        <option value="Motor">Motor</option>
+        <option value="Suspensión">Suspensión</option>
+        <option value="Encendido">Encendido</option>
+        <option value="Accesorios">Accesorios</option>
+      </select>
+    </div>
+
+    <div id="list"></div>
+  </div>
+
+  <div id="view-add" class="hidden">
+    <div class="form-group">
+      <label>Categoría *</label>
+      <select id="category">
+        <option value="Lubricantes y Fluidos">Lubricantes y Fluidos (Aceite, Agua, etc.)</option>
+        <option value="Electricidad e Iluminación">Electricidad e Iluminación (Focos, etc.)</option>
+        <option value="Filtros">Filtros</option>
+        <option value="Frenos">Frenos</option>
+        <option value="Motor">Motor</option>
+        <option value="Suspensión">Suspensión</option>
+        <option value="Encendido">Encendido</option>
+        <option value="Accesorios">Accesorios</option>
+      </select>
+    </div>
+
+    <div class="form-group">
+      <label>Marca del Vehículo / Insumo *</label>
+      <select id="brand">
+        <option value="Universal / Multimarca">Universal / Multimarca (Aceites, Focos, Agua)</option>
+        <option value="Chevrolet">Chevrolet</option>
+        <option value="Volkswagen">Volkswagen</option>
+        <option value="Fiat">Fiat</option>
+        <option value="Peugeot">Peugeot</option>
+        <option value="Renault">Renault</option>
+        <option value="Ford">Ford</option>
+        <option value="Otra">Otra Marca</option>
+      </select>
+    </div>
+
+    <div class="form-group">
+      <label>Modelo(s) o Especificación *</label>
+      <input type="text" id="model" placeholder="Ej: Corsa 1.4 / O bien '15W40 Semi-Sintético 4L'">
+    </div>
+
+    <div class="form-group">
+      <label>Nombre del Producto *</label>
+      <input type="text" id="name" placeholder="Ej: Aceite Shell Helix / Foco H7 12V / Agua Destilada 5L">
+    </div>
+
+    <div class="form-group">
+      <label>Código / Modelo de Pieza (Opcional)</label>
+      <input type="text" id="code" placeholder="Ej: H7-12V, 15W40, o dejar vacío">
+    </div>
+
+    <div style="display: flex; gap: 10px;">
+      <div class="form-group" style="flex:1;">
+        <label>Precio ($) *</label>
+        <input type="number" id="price" placeholder="4500">
+      </div>
+      <div class="form-group" style="flex:1;">
+        <label>Stock *</label>
+        <input type="number" id="stock" placeholder="10">
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label>Ubicación en Depósito</label>
+      <input type="text" id="location" placeholder="Ej: Pasillo Fluidos - Bidones / Caja Focos">
+    </div>
+
+    <button class="btn-submit" onclick="saveData()">💾 Guardar Producto</button>
+  </div>
+
+  <script>
+    let db = JSON.parse(localStorage.getItem('repuestos_db')) || [
+      { id: 1, brand: 'Universal / Multimarca', model: '10W40 Semi-Sintético 4L', category: 'Lubricantes y Fluidos', name: 'Aceite Elaion F30', code: 'LUB-10W40', price: 32000, stock: 6, location: 'Sector Aceites - Estante 1' },
+      { id: 2, brand: 'Universal / Multimarca', model: 'Bidón 5 Litros Desmineralizada', category: 'Lubricantes y Fluidos', name: 'Agua Destilada', code: 'AGUA-5L', price: 2500, stock: 12, location: 'Piso Sector Fluidos' },
+      { id: 3, brand: 'Universal / Multimarca', model: 'H7 12V 55W PX26d', category: 'Electricidad e Iluminación', name: 'Foco Halógeno Osram H7', code: 'OS-H7-12V', price: 4200, stock: 8, location: 'Caja Focos - Mostrador' },
+      { id: 4, brand: 'Chevrolet', model: 'Corsa / Classic 1.4 1.6', category: 'Filtros', name: 'Filtro de Aceite', code: 'WO-130', price: 8500, stock: 4, location: 'Estante A - Caja 02' }
+    ];
+
+    function renderList(items = db) {
+      const container = document.getElementById('list');
+      container.innerHTML = '';
+      if (items.length === 0) {
+        container.innerHTML = '<p style="text-align:center; color:#94a3b8; margin-top:20px;">No se encontraron artículos con esos filtros.</p>';
+        return;
+      }
+      items.forEach(item => {
+        const isLow = item.stock <= 2;
+        const card = document.createElement('div');
+        card.className = 'card';
+        card.innerHTML = `
+          <div class="card-header">
+            <div class="title">${item.name}</div>
+            <span class="code">${item.code}</span>
+          </div>
+          <div class="info">🚘 <b>${item.brand}</b> (${item.model})</div>
+          <div class="info">🏷️ <b>Categoría:</b> <span class="tag">${item.category}</span></div>
+          <div class="info">📍 <b>Ubicación:</b> ${item.location || 'Sin asignar'}</div>
+          <div class="card-footer">
+            <div>
+              <div class="price">$${Number(item.price).toLocaleString('es-AR')}</div>
+              <div class="stock ${isLow ? 'stock-low' : 'stock-ok'}">
+                ${isLow ? '⚠️ Stock Bajo: ' : '🟢 Stock: '} ${item.stock} un.
+              </div>
+            </div>
+            <button class="btn-wa" onclick="sendWA('${item.name}', '${item.model}', ${item.price}, ${item.stock})">📲 Respuesta WA</button>
+          </div>
+        `;
+        container.appendChild(card);
+      });
+      document.getElementById('count').innerText = `${items.length} Artículos`;
+    }
+
+    function filterData() {
+      const q = document.getElementById('search').value.toLowerCase();
+      const b = document.getElementById('filter-brand').value;
+      const c = document.getElementById('filter-category').value;
+
+      const filtered = db.filter(i => {
+        const matchText = i.name.toLowerCase().includes(q) || i.model.toLowerCase().includes(q) || i.code.toLowerCase().includes(q);
+        const matchBrand = b === '' || i.brand === b;
+        const matchCat = c === '' || i.category === c;
+        return matchText && matchBrand && matchCat;
+      });
+
+      renderList(filtered);
+    }
+
+    function setTab(tab) {
+      if (tab === 'search') {
+        document.getElementById('view-search').classList.remove('hidden');
+        document.getElementById('view-add').classList.add('hidden');
+        document.getElementById('tab-search-btn').className = 'btn-tab btn-active';
+        document.getElementById('tab-add-btn').className = 'btn-tab btn-inactive';
+      } else {
+        document.getElementById('view-search').classList.add('hidden');
+        document.getElementById('view-add').classList.remove('hidden');
+        document.getElementById('tab-search-btn').className = 'btn-tab btn-inactive';
+        document.getElementById('tab-add-btn').className = 'btn-tab btn-active';
+      }
+    }
+
+    function saveData() {
+      const category = document.getElementById('category').value;
+      const brand = document.getElementById('brand').value;
+      const model = document.getElementById('model').value.trim();
+      const name = document.getElementById('name').value.trim();
+      const price = document.getElementById('price').value;
+      const stock = document.getElementById('stock').value;
+
+      if (!model || !name || !price || !stock) {
+        alert('Por favor completá Especificación/Modelo, Nombre, Precio y Stock.');
+        return;
+      }
+
+      let code = document.getElementById('code').value.trim();
+      if (!code) {
+        code = 'ART-' + Math.floor(100 + Math.random() * 900);
+      }
+
+      const newItem = {
+        id: Date.now(),
+        brand,
+        model,
+        category,
+        name,
+        code: code.toUpperCase(),
+        price: parseFloat(price),
+        stock: parseInt(stock),
+        location: document.getElementById('location').value.trim()
+      };
+
+      db.unshift(newItem);
+      localStorage.setItem('repuestos_db', JSON.stringify(db));
+
+      document.getElementById('model').value = '';
+      document.getElementById('name').value = '';
+      document.getElementById('code').value = '';
+      document.getElementById('price').value = '';
+      document.getElementById('stock').value = '';
+      document.getElementById('location').value = '';
+
+      setTab('search');
+      renderList();
+      alert(`✅ Guardado: ${name}`);
+    }
+
+    function sendWA(name, model, price, stock) {
+      const msg = `Hola! Sí, tenemos stock de ${name} (${model}). El precio es $${Number(price).toLocaleString('es-AR')}. (${stock} un. disponibles)`;
+      navigator.clipboard.writeText(msg);
+      alert('📋 Respuesta lista: copiada al portapapeles para enviar por WhatsApp.');
+    }
+
+    renderList();
+  </script>
+</body>
+</html>
