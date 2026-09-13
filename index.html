@@ -3,481 +3,431 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Repuestos Pro - Gestión de Stock</title>
-  <meta name="theme-color" content="#2563eb">
-  <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
+  <title>Control de Stock - AutoPartes</title>
+  <script src="https://unpkg.com/@zxing/library@latest"></script>
   <style>
     :root {
-      --bg: #f8fafc;
-      --card-bg: #ffffff;
-      --text: #0f172a;
-      --subtext: #64748b;
-      --border: #e2e8f0;
-      --primary: #2563eb;
-      --primary-hover: #1d4ed8;
-      --success: #10b981;
-      --warning: #f59e0b;
-      --danger: #ef4444;
-    }
-
-    [data-theme="dark"] {
       --bg: #0f172a;
       --card-bg: #1e293b;
+      --accent: #f59e0b; /* Color naranja cálido */
+      --accent-hover: #d97706;
       --text: #f8fafc;
-      --subtext: #94a3b8;
+      --text-muted: #94a3b8;
       --border: #334155;
-      --primary: #3b82f6;
-      --primary-hover: #60a5fa;
+      --badge-bg: #334155;
+      --success: #22c55e;
     }
 
-    * { box-sizing: border-box; margin: 0; padding: 0; font-family: system-ui, -apple-system, sans-serif; }
-    body { background-color: var(--bg); color: var(--text); padding: 12px; max-width: 500px; margin: 0 auto; padding-bottom: 80px; transition: background 0.3s, color 0.3s; }
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    }
 
-    header { display: flex; justify-content: space-between; align-items: center; padding: 12px 0; margin-bottom: 12px; border-bottom: 2px solid var(--border); }
-    h1 { font-size: 1.2rem; font-weight: 800; color: var(--primary); display: flex; align-items: center; gap: 8px; }
-    
-    .top-actions { display: flex; gap: 8px; align-items: center; }
-    .btn-icon { background: var(--card-bg); border: 1px solid var(--border); color: var(--text); padding: 8px 10px; border-radius: 8px; font-size: 0.9rem; cursor: pointer; }
+    body {
+      background-color: var(--bg);
+      color: var(--text);
+      padding-bottom: 70px;
+    }
 
-    .search-box { position: relative; margin-bottom: 12px; }
-    .search-input { width: 100%; padding: 12px 40px 12px 14px; border-radius: 10px; border: 1px solid var(--border); background: var(--card-bg); color: var(--text); font-size: 0.95rem; font-weight: 500; }
-    .search-input:focus { border-color: var(--primary); outline: none; }
-    .scan-btn-inline { position: absolute; right: 8px; top: 8px; background: var(--primary); color: white; border: none; padding: 6px 10px; border-radius: 6px; font-size: 0.8rem; cursor: pointer; }
+    header {
+      background-color: var(--card-bg);
+      padding: 16px;
+      text-align: center;
+      border-bottom: 1px solid var(--border);
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
 
-    .filter-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 12px; }
-    select, input[type="text"], input[type="number"], input[type="url"] { width: 100%; padding: 10px; border-radius: 8px; border: 1px solid var(--border); background: var(--card-bg); color: var(--text); font-size: 0.9rem; }
+    header h1 {
+      font-size: 1.2rem;
+      color: var(--accent);
+      font-weight: 800;
+    }
 
-    .card { background: var(--card-bg); border-radius: 12px; padding: 14px; margin-bottom: 12px; border: 1px solid var(--border); box-shadow: 0 2px 4px rgba(0,0,0,0.02); }
-    .card-top { display: flex; justify-content: space-between; align-items: flex-start; gap: 8px; }
-    .product-img { width: 55px; height: 55px; border-radius: 8px; object-fit: cover; background: #eee; flex-shrink: 0; }
-    .product-title { font-size: 1rem; font-weight: 700; line-height: 1.2; margin-bottom: 4px; }
-    .product-code { font-size: 0.75rem; background: var(--border); padding: 2px 6px; border-radius: 4px; font-family: monospace; font-weight: 600; display: inline-block; }
+    .container {
+      padding: 16px;
+      max-width: 600px;
+      margin: 0 auto;
+    }
 
-    .p-info { font-size: 0.85rem; color: var(--subtext); margin-top: 6px; display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
-    .badge { padding: 2px 8px; border-radius: 12px; font-size: 0.75rem; font-weight: 700; }
-    .bg-ok { background: #d1fae5; color: #065f46; }
-    .bg-low { background: #fee2e2; color: #991b1b; }
+    .search-box {
+      margin-bottom: 16px;
+      display: flex;
+      gap: 8px;
+    }
 
-    .card-bottom { display: flex; justify-content: space-between; align-items: center; margin-top: 12px; padding-top: 10px; border-top: 1px dashed var(--border); }
-    .price-tag { font-size: 1.25rem; font-weight: 800; color: var(--primary); }
+    input, select, textarea {
+      width: 100%;
+      padding: 12px;
+      background-color: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      color: var(--text);
+      font-size: 0.95rem;
+    }
 
-    .card-actions { display: flex; gap: 6px; }
-    .btn-action { border: none; padding: 8px 12px; border-radius: 8px; font-weight: 700; font-size: 0.8rem; cursor: pointer; display: flex; align-items: center; gap: 4px; }
-    .btn-wa { background: #25d366; color: white; }
-    .btn-edit { background: var(--border); color: var(--text); }
+    input:focus, textarea:focus {
+      outline: none;
+      border-color: var(--accent);
+    }
 
-    /* Bottom Navbar */
-    .bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; background: var(--card-bg); border-top: 1px solid var(--border); display: flex; justify-content: space-around; padding: 8px 0; max-width: 500px; margin: 0 auto; z-index: 100; }
-    .nav-item { display: flex; flex-direction: column; align-items: center; border: none; background: none; color: var(--subtext); font-size: 0.75rem; font-weight: 600; cursor: pointer; flex: 1; }
-    .nav-item.active { color: var(--primary); }
-    .nav-item span { font-size: 1.2rem; margin-bottom: 2px; }
+    .btn {
+      background-color: var(--accent);
+      color: #000;
+      font-weight: 700;
+      padding: 12px 16px;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
 
-    .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 200; align-items: center; justify-content: center; padding: 16px; }
-    .modal-content { background: var(--card-bg); width: 100%; max-width: 440px; border-radius: 16px; padding: 18px; max-height: 90vh; overflow-y: auto; }
-    .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; }
-    
-    .form-group { margin-bottom: 10px; }
-    .form-group label { font-size: 0.8rem; font-weight: 700; color: var(--subtext); display: block; margin-bottom: 4px; }
-    .btn-submit { background: var(--primary); color: white; border: none; width: 100%; padding: 12px; border-radius: 10px; font-size: 1rem; font-weight: 700; margin-top: 10px; cursor: pointer; }
+    .btn-secondary {
+      background-color: var(--border);
+      color: var(--text);
+    }
 
-    .hidden { display: none !important; }
-    #reader { width: 100%; margin-bottom: 10px; border-radius: 8px; overflow: hidden; }
+    .btn:hover {
+      background-color: var(--accent-hover);
+    }
+
+    .form-group {
+      margin-bottom: 14px;
+    }
+
+    .form-group label {
+      display: block;
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      margin-bottom: 6px;
+    }
+
+    .card {
+      background-color: var(--card-bg);
+      border-radius: 10px;
+      padding: 14px;
+      margin-bottom: 12px;
+      border: 1px solid var(--border);
+    }
+
+    .card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 8px;
+    }
+
+    .card-title {
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: var(--text);
+    }
+
+    .card-code {
+      font-size: 0.85rem;
+      color: var(--accent);
+      font-weight: 700;
+    }
+
+    .tag-container {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin: 8px 0;
+    }
+
+    .tag {
+      background-color: var(--badge-bg);
+      color: var(--text-muted);
+      font-size: 0.75rem;
+      padding: 4px 8px;
+      border-radius: 4px;
+    }
+
+    .tag-eq {
+      border: 1px solid var(--accent);
+      color: var(--accent);
+    }
+
+    .card-footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 10px;
+      padding-top: 8px;
+      border-top: 1px solid var(--border);
+      font-size: 0.9rem;
+    }
+
+    .price {
+      font-weight: 700;
+      color: var(--success);
+      font-size: 1.1rem;
+    }
+
+    .nav-bar {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background-color: var(--card-bg);
+      display: flex;
+      border-top: 1px solid var(--border);
+    }
+
+    .nav-item {
+      flex: 1;
+      padding: 12px;
+      text-align: center;
+      color: var(--text-muted);
+      background: none;
+      border: none;
+      font-size: 0.85rem;
+      cursor: pointer;
+    }
+
+    .nav-item.active {
+      color: var(--accent);
+      font-weight: 700;
+    }
+
+    .tab-content {
+      display: none;
+    }
+
+    .tab-content.active {
+      display: block;
+    }
+
+    #scanner-modal {
+      display: none;
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0,0,0,0.9);
+      z-index: 100;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    video {
+      width: 100%;
+      max-width: 400px;
+      border-radius: 8px;
+      border: 2px solid var(--accent);
+    }
   </style>
 </head>
-<body data-theme="dark">
+<body>
 
   <header>
-    <h1>📦 RepuestosPro</h1>
-    <div class="top-actions">
-      <button class="btn-icon" onclick="toggleTheme()" title="Cambiar tema">🌙 / ☀️</button>
-      <button class="btn-icon" onclick="openInflationModal()" title="Aumento masivo">📈 %</button>
-    </div>
+    <h1>⚙️ Repuestos & Stock</h1>
   </header>
 
-  <!-- PESTAÑA 1: INVENTARIO -->
-  <div id="tab-inventory">
-    <div class="search-box">
-      <input type="text" class="search-input" id="search" placeholder="🔍 Buscar por repuesto, auto, código..." onkeyup="filterData()">
-      <button class="scan-btn-inline" onclick="openScanner()">📷 Escanear</button>
-    </div>
-
-    <div class="filter-grid">
-      <select id="filter-brand" onchange="filterData()">
-        <option value="">Todas las Marcas</option>
-        <option value="Universal / Multimarca">Universal / Multimarca</option>
-        <option value="Chevrolet">Chevrolet</option>
-        <option value="Volkswagen">Volkswagen</option>
-        <option value="Fiat">Fiat</option>
-        <option value="Peugeot">Peugeot</option>
-        <option value="Renault">Renault</option>
-        <option value="Ford">Ford</option>
-      </select>
-
-      <select id="filter-category" onchange="filterData()">
-        <option value="">Todas las Categ.</option>
-        <option value="Lubricantes y Fluidos">Lubricantes y Fluidos</option>
-        <option value="Electricidad e Iluminación">Electricidad / Focos</option>
-        <option value="Filtros">Filtros</option>
-        <option value="Frenos">Frenos</option>
-        <option value="Motor">Motor</option>
-        <option value="Suspensión">Suspensión</option>
-      </select>
-    </div>
-
-    <div id="scanner-container" class="hidden">
-      <div id="reader"></div>
-      <button class="btn-submit" style="background:var(--danger); margin-bottom:10px;" onclick="closeScanner()">Cerrar Cámara</button>
-    </div>
-
-    <div id="list"></div>
-  </div>
-
-  <!-- PESTAÑA 2: CARGAR -->
-  <div id="tab-add" class="hidden">
-    <h2 style="font-size:1.1rem; margin-bottom:12px;">➕ Cargar / Editar Repuesto</h2>
-    <input type="hidden" id="edit-id">
+  <div class="container">
     
-    <div class="form-group">
-      <label>Nombre del Repuesto / Producto *</label>
-      <input type="text" id="name" placeholder="Ej: Aceite Shell 10W40 / Foco H7">
+    <!-- Pestaña Buscar / Lista -->
+    <div id="tab-search" class="tab-content active">
+      <div class="search-box">
+        <input type="text" id="search-input" placeholder="Buscar por repuesto, código, equivalencia o auto..." oninput="filterProducts()">
+        <button class="btn btn-secondary" onclick="openScanner('search')">📷</button>
+      </div>
+
+      <div id="product-list"></div>
     </div>
 
-    <div class="filter-grid">
-      <div class="form-group">
-        <label>Marca Vehículo *</label>
-        <select id="brand">
-          <option value="Universal / Multimarca">Universal</option>
-          <option value="Chevrolet">Chevrolet</option>
-          <option value="Volkswagen">Volkswagen</option>
-          <option value="Fiat">Fiat</option>
-          <option value="Peugeot">Peugeot</option>
-          <option value="Renault">Renault</option>
-          <option value="Ford">Ford</option>
-        </select>
-      </div>
-      <div class="form-group">
-        <label>Categoría *</label>
-        <select id="category">
-          <option value="Lubricantes y Fluidos">Lubricantes/Fluidos</option>
-          <option value="Electricidad e Iluminación">Electricidad</option>
-          <option value="Filtros">Filtros</option>
-          <option value="Frenos">Frenos</option>
-          <option value="Motor">Motor</option>
-          <option value="Suspensión">Suspensión</option>
-        </select>
-      </div>
+    <!-- Pestaña Agregar Repuesto -->
+    <div id="tab-add" class="tab-content">
+      <form id="add-form" onsubmit="saveProduct(event)">
+        <div class="form-group">
+          <label for="p-name">Nombre del Repuesto *</label>
+          <input type="text" id="p-name" placeholder="Ej: Filtro de Aceite" required>
+        </div>
+
+        <div class="form-group">
+          <label for="p-code">Código de Pieza (Principal / Barras) *</label>
+          <div style="display: flex; gap: 8px;">
+            <input type="text" id="p-code" placeholder="Ej: WO-200 / 7791234567890" required>
+            <button type="button" class="btn btn-secondary" onclick="openScanner('add')">📷</button>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="p-eq">Equivalencias / Códigos Cruzados</label>
+          <input type="text" id="p-eq" placeholder="Ej: Mann W712, Fram PH5796, Tecneco OL200">
+        </div>
+
+        <div class="form-group">
+          <label for="p-apps">Aplicaciones / Vehículos Compatibles</label>
+          <textarea id="p-apps" rows="2" placeholder="Ej: Fiat Palio, Siena, Uno Fire 1.3 16V"></textarea>
+        </div>
+
+        <div class="form-group">
+          <label for="p-brand">Marca</label>
+          <input type="text" id="p-brand" placeholder="Ej: Wega">
+        </div>
+
+        <div class="form-group" style="display: flex; gap: 10px;">
+          <div style="flex: 1;">
+            <label for="p-stock">Cantidad / Stock</label>
+            <input type="number" id="p-stock" value="1" min="0">
+          </div>
+          <div style="flex: 1;">
+            <label for="p-price">Precio ($)</label>
+            <input type="number" id="p-price" placeholder="Ej: 8500" step="0.01">
+          </div>
+        </div>
+
+        <button type="submit" class="btn" style="width: 100%; margin-top: 10px;">💾 Guardar Repuesto</button>
+      </form>
     </div>
 
-    <div class="form-group">
-      <label>Modelo / Aplicación *</label>
-      <input type="text" id="model" placeholder="Ej: Corsa 1.4 / Bidón 4L">
-    </div>
-
-    <div class="filter-grid">
-      <div class="form-group">
-        <label>Código de Pieza</label>
-        <input type="text" id="code" placeholder="Ej: H7-12V">
-      </div>
-      <div class="form-group">
-        <label>Ubicación Depósito</label>
-        <input type="text" id="location" placeholder="Ej: Estante A2">
-      </div>
-    </div>
-
-    <div class="filter-grid">
-      <div class="form-group">
-        <label>Precio ($) *</label>
-        <input type="number" id="price" placeholder="4500">
-      </div>
-      <div class="form-group">
-        <label>Stock *</label>
-        <input type="number" id="stock" placeholder="10">
-      </div>
-    </div>
-
-    <div class="form-group">
-      <label>Link de Foto (Opcional)</label>
-      <input type="url" id="photo" placeholder="https://ejemplo.com/foto.jpg">
-    </div>
-
-    <button class="btn-submit" onclick="saveData()">💾 Guardar Producto</button>
   </div>
 
-  <!-- PESTAÑA 3: AJUSTES & EXPORTAR -->
-  <div id="tab-settings" class="hidden">
-    <h2 style="font-size:1.1rem; margin-bottom:12px;">⚙️ Opciones & Copia de Seguridad</h2>
-    <div class="card">
-      <h3 style="font-size:0.95rem; margin-bottom:8px;">📊 Copia de Seguridad Excel (CSV)</h3>
-      <p style="font-size:0.8rem; color:var(--subtext); margin-bottom:10px;">Descargá toda tu lista de repuestos a tu celular.</p>
-      <button class="btn-submit" style="background:var(--success);" onclick="exportCSV()">📥 Descargar Excel / CSV</button>
-    </div>
-
-    <div class="card">
-      <h3 style="font-size:0.95rem; margin-bottom:8px;">⚠️ Stock Crítico</h3>
-      <p style="font-size:0.8rem; color:var(--subtext); margin-bottom:10px;">Ver repuestos con 2 o menos unidades disponibles.</p>
-      <button class="btn-submit" style="background:var(--warning);" onclick="showCriticalStock()">🚨 Ver Repuestos por Agotarse</button>
-    </div>
+  <!-- Modal Escáner -->
+  <div id="scanner-modal">
+    <p style="color:#fff; margin-bottom: 12px;">Apuntá al código de barras</p>
+    <video id="video-preview"></video>
+    <button class="btn" style="margin-top: 16px; background: #ef4444; color: #fff;" onclick="closeScanner()">Cerrar Cámara</button>
   </div>
 
-  <!-- MODAL AUMENTO PRECIOS -->
-  <div class="modal" id="modal-inflation">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h3>📈 Aumento Masivo de Precios</h3>
-        <button class="btn-icon" onclick="closeInflationModal()">✕</button>
-      </div>
-      <div class="form-group">
-        <label>Porcentaje de Aumento (%)</label>
-        <input type="number" id="inf-percent" placeholder="Ej: 10 para aumentar 10%">
-      </div>
-      <div class="form-group">
-        <label>Aplicar solo a esta Marca (Opcional)</label>
-        <select id="inf-brand">
-          <option value="">Todas las Marcas</option>
-          <option value="Chevrolet">Chevrolet</option>
-          <option value="Volkswagen">Volkswagen</option>
-          <option value="Fiat">Fiat</option>
-          <option value="Peugeot">Peugeot</option>
-          <option value="Renault">Renault</option>
-          <option value="Ford">Ford</option>
-          <option value="Universal / Multimarca">Universal</option>
-        </select>
-      </div>
-      <button class="btn-submit" onclick="applyInflation()">Aplicar Aumento</button>
-    </div>
-  </div>
-
-  <!-- BARRA DE NAVEGACIÓN INFERIOR -->
-  <nav class="bottom-nav">
-    <button class="nav-item active" id="nav-inv" onclick="switchTab('inventory')">
-      <span>🔍</span>Buscar
-    </button>
-    <button class="nav-item" id="nav-add" onclick="switchTab('add')">
-      <span>➕</span>Cargar
-    </button>
-    <button class="nav-item" id="nav-set" onclick="switchTab('settings')">
-      <span>⚙️</span>Ajustes
-    </button>
+  <nav class="nav-bar">
+    <button class="nav-item active" onclick="switchTab('search')">🔍 Buscar</button>
+    <button class="nav-item" onclick="switchTab('add')">➕ Agregar</button>
   </nav>
 
   <script>
-    let db = JSON.parse(localStorage.getItem('repuestos_db_v2')) || [
-      { id: 1, brand: 'Universal / Multimarca', model: '10W40 Semi-Sintético 4L', category: 'Lubricantes y Fluidos', name: 'Aceite Elaion F30', code: 'LUB-10W40', price: 32000, stock: 6, location: 'Estante 1', photo: 'https://images.unsplash.com/photo-1615906655593-ad0386982a0f?w=100' },
-      { id: 2, brand: 'Universal / Multimarca', model: 'H7 12V 55W', category: 'Electricidad e Iluminación', name: 'Foco Osram H7', code: 'OS-H7', price: 4200, stock: 1, location: 'Caja Focos', photo: '' }
-    ];
+    let products = JSON.parse(localStorage.getItem('autopartes_stock') || '[]');
+    let codeReader = null;
+    let currentScanTarget = 'search';
 
-    let html5QrcodeScanner = null;
+    function saveProduct(e) {
+      e.preventDefault();
+      
+      const newProduct = {
+        id: Date.now(),
+        name: document.getElementById('p-name').value,
+        code: document.getElementById('p-code').value,
+        equivalences: document.getElementById('p-eq').value,
+        applications: document.getElementById('p-apps').value,
+        brand: document.getElementById('p-brand').value || 'Generica',
+        stock: parseInt(document.getElementById('p-stock').value) || 0,
+        price: parseFloat(document.getElementById('p-price').value) || 0
+      };
 
-    function renderList(items = db) {
-      const container = document.getElementById('list');
-      container.innerHTML = '';
+      products.push(newProduct);
+      localStorage.setItem('autopartes_stock', JSON.stringify(products));
+      
+      document.getElementById('add-form').reset();
+      switchTab('search');
+      renderProducts();
+    }
 
-      if (items.length === 0) {
-        container.innerHTML = '<p style="text-align:center; color:var(--subtext); margin-top:30px;">No se encontraron repuestos.</p>';
+    function renderProducts(filter = '') {
+      const list = document.getElementById('product-list');
+      list.innerHTML = '';
+
+      const term = filter.toLowerCase().trim();
+
+      const filtered = products.filter(p => 
+        p.name.toLowerCase().includes(term) ||
+        p.code.toLowerCase().includes(term) ||
+        (p.equivalences && p.equivalences.toLowerCase().includes(term)) ||
+        (p.applications && p.applications.toLowerCase().includes(term)) ||
+        p.brand.toLowerCase().includes(term)
+      );
+
+      if (filtered.length === 0) {
+        list.innerHTML = '<p style="text-align:center; color: var(--text-muted); margin-top: 20px;">No se encontraron repuestos.</p>';
         return;
       }
 
-      items.forEach(item => {
-        const isLow = item.stock <= 2;
-        const imgUrl = item.photo || 'https://via.placeholder.com/60?text=Pieza';
-        
+      filtered.forEach(p => {
         const card = document.createElement('div');
         card.className = 'card';
         card.innerHTML = `
-          <div class="card-top">
-            <img src="${imgUrl}" class="product-img" alt="Repuesto" onerror="this.src='https://via.placeholder.com/60?text=Pieza'">
-            <div style="flex:1;">
-              <div class="product-title">${item.name}</div>
-              <span class="product-code">${item.code}</span>
-              <div class="p-info">
-                🚘 <b>${item.brand}</b> (${item.model})
-              </div>
-              <div class="p-info">
-                📍 <b>Ubicación:</b> ${item.location || 'S/A'}
-              </div>
-            </div>
-          </div>
-          <div class="card-bottom">
+          <div class="card-header">
             <div>
-              <div class="price-tag">$${Number(item.price).toLocaleString('es-AR')}</div>
-              <span class="badge ${isLow ? 'bg-low' : 'bg-ok'}">
-                ${isLow ? '⚠️ Stock Bajo: ' : '🟢 Stock: '} ${item.stock} un.
-              </span>
+              <div class="card-title">${p.name}</div>
+              <div style="font-size: 0.8rem; color: var(--text-muted);">${p.brand}</div>
             </div>
-            <div class="card-actions">
-              <button class="btn-action btn-edit" onclick="editProduct(${item.id})">✏️ Editar</button>
-              <button class="btn-action btn-wa" onclick="sendWA('${item.name}', '${item.model}', ${item.price}, ${item.stock})">📲 WA</button>
+            <div class="card-code">${p.code}</div>
+          </div>
+          
+          ${p.equivalences ? `
+            <div class="tag-container">
+              <span class="tag tag-eq">🔄 Eq: ${p.equivalences}</span>
             </div>
+          ` : ''}
+
+          ${p.applications ? `
+            <div style="font-size: 0.85rem; color: var(--text-muted); margin-top: 6px;">
+              🚗 <strong>Aplicación:</strong> ${p.applications}
+            </div>
+          ` : ''}
+
+          <div class="card-footer">
+            <div>Stock: <strong>${p.stock} u.</strong></div>
+            <div class="price">$${p.price.toLocaleString()}</div>
           </div>
         `;
-        container.appendChild(card);
+        list.appendChild(card);
       });
     }
 
-    function filterData() {
-      const q = document.getElementById('search').value.toLowerCase();
-      const b = document.getElementById('filter-brand').value;
-      const c = document.getElementById('filter-category').value;
-
-      const filtered = db.filter(i => {
-        const matchText = i.name.toLowerCase().includes(q) || i.model.toLowerCase().includes(q) || i.code.toLowerCase().includes(q);
-        const matchBrand = b === '' || i.brand === b;
-        const matchCat = c === '' || i.category === c;
-        return matchText && matchBrand && matchCat;
-      });
-
-      renderList(filtered);
+    function filterProducts() {
+      const term = document.getElementById('search-input').value;
+      renderProducts(term);
     }
 
     function switchTab(tab) {
-      document.getElementById('tab-inventory').classList.add('hidden');
-      document.getElementById('tab-add').classList.add('hidden');
-      document.getElementById('tab-settings').classList.add('hidden');
+      document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+      document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
 
-      document.getElementById('nav-inv').classList.remove('active');
-      document.getElementById('nav-add').classList.remove('active');
-      document.getElementById('nav-set').classList.remove('active');
-
-      if (tab === 'inventory') {
-        document.getElementById('tab-inventory').classList.remove('hidden');
-        document.getElementById('nav-inv').classList.add('active');
-      } else if (tab === 'add') {
-        document.getElementById('tab-add').classList.remove('hidden');
-        document.getElementById('nav-add').classList.add('active');
-      } else if (tab === 'settings') {
-        document.getElementById('tab-settings').classList.remove('hidden');
-        document.getElementById('nav-set').classList.add('active');
-      }
-    }
-
-    function saveData() {
-      const editId = document.getElementById('edit-id').value;
-      const name = document.getElementById('name').value.trim();
-      const brand = document.getElementById('brand').value;
-      const category = document.getElementById('category').value;
-      const model = document.getElementById('model').value.trim();
-      const price = document.getElementById('price').value;
-      const stock = document.getElementById('stock').value;
-
-      if (!name || !model || !price || !stock) {
-        alert('Completá al menos Nombre, Modelo, Precio y Stock.');
-        return;
-      }
-
-      let code = document.getElementById('code').value.trim() || 'ART-' + Math.floor(100 + Math.random()*900);
-
-      if (editId) {
-        const index = db.findIndex(i => i.id == editId);
-        if (index !== -1) {
-          db[index] = { ...db[index], name, brand, category, model, code: code.toUpperCase(), price: parseFloat(price), stock: parseInt(stock), location: document.getElementById('location').value.trim(), photo: document.getElementById('photo').value.trim() };
-        }
+      if (tab === 'search') {
+        document.getElementById('tab-search').classList.add('active');
+        event.target.classList.add('active');
       } else {
-        const newItem = { id: Date.now(), name, brand, category, model, code: code.toUpperCase(), price: parseFloat(price), stock: parseInt(stock), location: document.getElementById('location').value.trim(), photo: document.getElementById('photo').value.trim() };
-        db.unshift(newItem);
+        document.getElementById('tab-add').classList.add('active');
+        event.target.classList.add('active');
       }
-
-      localStorage.setItem('repuestos_db_v2', JSON.stringify(db));
-      clearForm();
-      switchTab('inventory');
-      renderList();
-      alert('✅ Producto guardado con éxito.');
     }
 
-    function editProduct(id) {
-      const item = db.find(i => i.id === id);
-      if (!item) return;
+    function openScanner(target) {
+      currentScanTarget = target;
+      document.getElementById('scanner-modal').style.display = 'flex';
+      codeReader = new ZXing.BrowserMultiFormatReader();
+      
+      codeReader.decodeFromVideoDevice(null, 'video-preview', (result, err) => {
+        if (result) {
+          const code = result.text;
+          closeScanner();
 
-      document.getElementById('edit-id').value = item.id;
-      document.getElementById('name').value = item.name;
-      document.getElementById('brand').value = item.brand;
-      document.getElementById('category').value = item.category;
-      document.getElementById('model').value = item.model;
-      document.getElementById('code').value = item.code;
-      document.getElementById('price').value = item.price;
-      document.getElementById('stock').value = item.stock;
-      document.getElementById('location').value = item.location || '';
-      document.getElementById('photo').value = item.photo || '';
-
-      switchTab('add');
-    }
-
-    function clearForm() {
-      document.getElementById('edit-id').value = '';
-      document.getElementById('name').value = '';
-      document.getElementById('model').value = '';
-      document.getElementById('code').value = '';
-      document.getElementById('price').value = '';
-      document.getElementById('stock').value = '';
-      document.getElementById('location').value = '';
-      document.getElementById('photo').value = '';
-    }
-
-    function sendWA(name, model, price, stock) {
-      const msg = `Hola! Sí, tenemos stock de ${name} (${model}). Precio: $${Number(price).toLocaleString('es-AR')}. (${stock} un. disponibles)`;
-      navigator.clipboard.writeText(msg);
-      alert('📋 Respuesta copiada listo para pegar en WhatsApp.');
-    }
-
-    function toggleTheme() {
-      const current = document.body.getAttribute('data-theme');
-      document.body.setAttribute('data-theme', current === 'dark' ? 'light' : 'dark');
-    }
-
-    function openInflationModal() { document.getElementById('modal-inflation').style.display = 'flex'; }
-    function closeInflationModal() { document.getElementById('modal-inflation').style.display = 'none'; }
-
-    function applyInflation() {
-      const pct = parseFloat(document.getElementById('inf-percent').value);
-      const b = document.getElementById('inf-brand').value;
-
-      if (!pct) { alert('Ingresá un porcentaje.'); return; }
-
-      db.forEach(i => {
-        if (b === '' || i.brand === b) {
-          i.price = Math.round(i.price * (1 + pct / 100));
+          if (currentScanTarget === 'search') {
+            document.getElementById('search-input').value = code;
+            filterProducts();
+          } else {
+            document.getElementById('p-code').value = code;
+          }
         }
-      });
-
-      localStorage.setItem('repuestos_db_v2', JSON.stringify(db));
-      renderList();
-      closeInflationModal();
-      alert(`✅ Precios actualizados un +${pct}%.`);
-    }
-
-    function exportCSV() {
-      let csv = 'Nombre,Marca,Modelo,Codigo,Precio,Stock,Ubicacion\n';
-      db.forEach(i => {
-        csv += `"${i.name}","${i.brand}","${i.model}","${i.code}",${i.price},${i.stock},"${i.location}"\n`;
-      });
-      const blob = new Blob([csv], { type: 'text/csv' });
-      const a = document.createElement('a');
-      a.href = URL.createObjectURL(blob);
-      a.download = 'Inventario_Repuestos.csv';
-      a.click();
-    }
-
-    function showCriticalStock() {
-      const critical = db.filter(i => i.stock <= 2);
-      switchTab('inventory');
-      renderList(critical);
-    }
-
-    function openScanner() {
-      document.getElementById('scanner-container').classList.remove('hidden');
-      html5QrcodeScanner = new Html5QrcodeScanner("reader", { fps: 10, qrbox: 250 });
-      html5QrcodeScanner.render((decodedText) => {
-        document.getElementById('search').value = decodedText;
-        filterData();
-        closeScanner();
       });
     }
 
     function closeScanner() {
-      if (html5QrcodeScanner) { html5QrcodeScanner.clear(); }
-      document.getElementById('scanner-container').classList.add('hidden');
+      if (codeReader) {
+        codeReader.reset();
+      }
+      document.getElementById('scanner-modal').style.display = 'none';
     }
 
-    renderList();
+    renderProducts();
   </script>
 </body>
 </html>
