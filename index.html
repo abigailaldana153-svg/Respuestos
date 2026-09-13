@@ -84,32 +84,26 @@
       -webkit-text-fill-color: transparent;
     }
 
-    /* DISEÑO PROFESIONAL CON ÍNDICE AL COSTADO (SIDEBAR DE MARCAS) */
-    .app-layout {
-      display: flex;
-      max-width: 1200px;
+    .container {
+      max-width: 900px;
       margin: 0 auto;
-      padding: 20px 16px;
-      gap: 20px;
+      padding: 16px;
     }
 
-    .sidebar-index {
-      width: 260px;
-      flex-shrink: 0;
+    /* ESTILO DE LA FOTO: CAJA SUPERIOR "ÍNDICE DE MARCAS" */
+    .top-brands-card {
       background: var(--card-bg);
       backdrop-filter: blur(16px);
       border: 1px solid var(--card-border);
       border-radius: var(--radius-lg);
       padding: 16px;
-      height: fit-content;
-      position: sticky;
-      top: 80px;
+      margin-bottom: 16px;
     }
 
-    .sidebar-title {
-      font-size: 0.75rem;
-      font-weight: 700;
-      color: #60a5fa;
+    .section-title {
+      font-size: 0.8rem;
+      font-weight: 800;
+      color: var(--text-main);
       text-transform: uppercase;
       letter-spacing: 0.5px;
       margin-bottom: 12px;
@@ -118,33 +112,37 @@
       gap: 6px;
     }
 
-    .brand-index-list {
-      display: flex;
-      flex-direction: column;
-      gap: 6px;
-      max-height: 65vh;
+    .brands-horizontal-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
+      gap: 8px;
+      max-height: 180px;
       overflow-y: auto;
+      padding-right: 4px;
     }
 
-    .brand-index-btn {
-      background: rgba(255, 255, 255, 0.03);
+    .brand-pill {
+      background: rgba(255, 255, 255, 0.04);
       border: 1px solid var(--card-border);
       color: var(--text-muted);
-      font-size: 0.85rem;
+      font-size: 0.82rem;
       font-weight: 600;
       padding: 10px 12px;
-      border-radius: var(--radius-sm);
-      text-align: left;
+      border-radius: var(--radius-md);
+      text-align: center;
       cursor: pointer;
       transition: all 0.2s ease;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
 
-    .brand-index-btn:hover {
+    .brand-pill:hover {
       background: rgba(59, 130, 246, 0.1);
       color: var(--text-main);
     }
 
-    .brand-index-btn.active {
+    .brand-pill.active {
       background: var(--accent-gradient);
       border-color: transparent;
       color: #ffffff;
@@ -152,35 +150,10 @@
       box-shadow: 0 4px 12px var(--accent-glow);
     }
 
-    .main-content-area {
-      flex: 1;
-      min-width: 0;
-    }
-
-    @media (max-width: 768px) {
-      .app-layout {
-        flex-direction: column;
-      }
-      .sidebar-index {
-        width: 100%;
-        position: relative;
-        top: 0;
-      }
-      .brand-index-list {
-        flex-direction: row;
-        overflow-x: auto;
-        max-height: none;
-        padding-bottom: 6px;
-      }
-      .brand-index-btn {
-        white-space: nowrap;
-      }
-    }
-
     /* Buscador y Botón Cámara */
     .search-wrapper {
       position: relative;
-      margin-bottom: 16px;
+      margin-bottom: 20px;
       display: flex;
       gap: 10px;
     }
@@ -201,11 +174,12 @@
     .search-wrapper input {
       width: 100%;
       padding: 14px 14px 14px 44px;
-      background: var(--input-bg);
+      background: var(--card-bg);
       border: 1px solid var(--card-border);
       border-radius: var(--radius-md);
       color: var(--text-main);
       font-size: 0.95rem;
+      backdrop-filter: blur(16px);
     }
 
     .btn-scan-cam {
@@ -219,15 +193,75 @@
       box-shadow: 0 4px 12px var(--accent-glow);
     }
 
+    /* COLUMNAS DE FILTRADO ESTILO CAPTURA */
+    .filters-columns-container {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+
+    @media (max-width: 768px) {
+      .filters-columns-container {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .filter-column-card {
+      background: var(--card-bg);
+      backdrop-filter: blur(16px);
+      border: 1px solid var(--card-border);
+      border-radius: var(--radius-lg);
+      padding: 14px;
+    }
+
+    .column-header {
+      font-size: 0.75rem;
+      font-weight: 700;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      margin-bottom: 10px;
+      padding-bottom: 6px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    }
+
+    .column-list {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      max-height: 200px;
+      overflow-y: auto;
+    }
+
+    .column-item {
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid var(--card-border);
+      color: var(--text-muted);
+      font-size: 0.82rem;
+      font-weight: 600;
+      padding: 10px;
+      border-radius: var(--radius-sm);
+      text-align: left;
+      cursor: pointer;
+    }
+
+    .column-item.active {
+      background: var(--accent-gradient);
+      color: #ffffff;
+      border-color: transparent;
+      font-weight: 700;
+    }
+
     .brand-group-header {
       font-size: 1rem;
       font-weight: 800;
       color: #34d399;
-      margin: 16px 0 10px 0;
+      margin: 20px 0 10px 0;
       padding-bottom: 4px;
       border-bottom: 2px solid rgba(16, 185, 129, 0.3);
     }
 
+    /* Botones y Formularios generales */
     .btn-primary {
       background: var(--accent-gradient);
       color: #ffffff;
@@ -267,18 +301,9 @@
       margin: 0 auto;
     }
 
-    .form-group {
-      margin-bottom: 14px;
-    }
-
-    .form-row {
-      display: flex;
-      gap: 10px;
-    }
-
-    .form-row .form-group {
-      flex: 1;
-    }
+    .form-group { margin-bottom: 14px; }
+    .form-row { display: flex; gap: 10px; }
+    .form-row .form-group { flex: 1; }
 
     label {
       display: block;
@@ -332,11 +357,7 @@
       gap: 8px;
     }
 
-    .product-title {
-      font-size: 1.05rem;
-      font-weight: 800;
-    }
-
+    .product-title { font-size: 1.05rem; font-weight: 800; }
     .code-chip {
       background: rgba(59, 130, 246, 0.15);
       border: 1px solid rgba(59, 130, 246, 0.3);
@@ -356,11 +377,7 @@
       font-size: 0.85rem;
     }
 
-    .equiv-banner {
-      font-size: 0.78rem;
-      color: #34d399;
-      margin-top: 4px;
-    }
+    .equiv-banner { font-size: 0.78rem; color: #34d399; margin-top: 4px; }
 
     .card-bottom {
       display: flex;
@@ -371,17 +388,8 @@
       border-top: 1px solid rgba(255, 255, 255, 0.06);
     }
 
-    .price-value {
-      font-size: 1.2rem;
-      font-weight: 800;
-      color: #34d399;
-    }
-
-    .card-actions {
-      display: flex;
-      gap: 8px;
-      margin-top: 10px;
-    }
+    .price-value { font-size: 1.2rem; font-weight: 800; color: #34d399; }
+    .card-actions { display: flex; gap: 8px; margin-top: 10px; }
 
     .btn-action {
       flex: 1;
@@ -459,7 +467,7 @@
     </div>
   </div>
 
-  <!-- Modal Cámara / Escáner de Código de Barras -->
+  <!-- Modal Cámara / Escáner -->
   <div id="scanner-modal">
     <h3 style="color:white; margin-bottom: 15px; margin-top: 20px;">📷 Escaneando código de barras...</h3>
     <div style="max-width: 400px; margin: 0 auto; border-radius: 14px; overflow: hidden; border: 2px solid #3b82f6;">
@@ -469,39 +477,58 @@
   </div>
 
   <header>
-    <div class="brand-logo">⚙️ RepuestosPro - Sistema Profesional</div>
+    <div class="brand-logo">⚙️ RepuestosPro</div>
     <div id="user-display" style="font-size: 0.8rem; color: var(--text-muted);">👤 Usuario</div>
   </header>
 
   <div class="container">
     
-    <!-- TAB BUSCAR -->
+    <!-- TAB BUSCAR / INICIO -->
     <div id="tab-search" class="tab-content active">
-      <div class="app-layout">
-        
-        <!-- ÍNDICE DE MARCAS AL COSTADO (SIDEBAR) -->
-        <div class="sidebar-index">
-          <div class="sidebar-title">🚗 Marcas de Autos</div>
-          <div class="brand-index-list" id="sidebar-brands-container">
-            <!-- Se llena por JavaScript -->
-          </div>
-        </div>
-
-        <!-- CONTENIDO PRINCIPAL -->
-        <div class="main-content-area">
-          <div class="search-wrapper">
-            <div class="search-input-group">
-              <span class="search-icon">🔍</span>
-              <input type="text" id="search-input" placeholder="Buscar por nombre, código o equivalencia..." oninput="renderProducts()">
-            </div>
-            <!-- Botón de cámara principal que escanea y busca o carga automáticamente -->
-            <button class="btn-scan-cam" onclick="startSmartScanner()" title="Escanear Código de Barras">📷</button>
-          </div>
-
-          <div id="product-list"></div>
-        </div>
-
+      
+      <!-- 1. ÍNDICE DE MARCAS SUPERIOR (ESTILO CAPTURA) -->
+      <div class="top-brands-card">
+        <div class="section-title">🚗 Índice de Marcas</div>
+        <div class="brands-horizontal-grid" id="top-brands-container"></div>
       </div>
+
+      <!-- 2. BARRA DE BÚSQUEDA Y CÁMARA INTELIGENTE -->
+      <div class="search-wrapper">
+        <div class="search-input-group">
+          <span class="search-icon">🔍</span>
+          <input type="text" id="search-input" placeholder="Buscar por nombre, código..." oninput="renderProducts()">
+        </div>
+        <button class="btn-scan-cam" onclick="startSmartScanner()" title="Escanear Código de Barras">📷</button>
+      </div>
+
+      <!-- 3. COLUMNAS DE FILTRADO EXTRA (ÍNDICE / MARCA / CATEGORÍA) -->
+      <div class="filters-columns-container">
+        <!-- Columna Índice numérico rápido -->
+        <div class="filter-column-card">
+          <div class="column-header">Índice rápido</div>
+          <div class="column-list" id="col-index-list">
+            <div class="column-item active" onclick="setIndexFilter('TODOS', this)">Todos los registros</div>
+            <div class="column-item" onclick="setIndexFilter('1', this)">1. Destacados</div>
+            <div class="column-item" onclick="setIndexFilter('2', this)">2. Stock Alto</div>
+            <div class="column-item" onclick="setIndexFilter('3', this)">3. Nuevos</div>
+          </div>
+        </div>
+
+        <!-- Columna Marca de Auto -->
+        <div class="filter-column-card">
+          <div class="column-header">Marca de auto</div>
+          <div class="column-list" id="col-brand-list"></div>
+        </div>
+
+        <!-- Columna Categoría -->
+        <div class="filter-column-card">
+          <div class="column-header">Categoría</div>
+          <div class="column-list" id="col-cat-list"></div>
+        </div>
+      </div>
+
+      <!-- LISTA DE PRODUCTOS RESULTANTES -->
+      <div id="product-list"></div>
     </div>
 
     <!-- TAB CARGAR -->
@@ -564,7 +591,6 @@
           <div class="form-group">
             <label>Equivalencias / Códigos Cruzados</label>
             <input type="text" id="p-eq" placeholder="Ej: PH2870, Tecneco OL712">
-            <small style="color:var(--text-muted); font-size:0.72rem;">Separalos con comas para encontrarlos rápido al buscar.</small>
           </div>
 
           <div class="form-group">
@@ -611,9 +637,11 @@
     let products = JSON.parse(localStorage.getItem('autopartes_stock') || '[]');
     let currentPhotoBase64 = '';
     let selectedBrandFilter = 'TODAS';
+    let selectedCategoryFilter = 'TODAS';
     let codeReader = new ZXing.BrowserBarcodeReader();
 
     const BRANDS_LIST = ["TODAS", "Ford", "Fiat", "Chevrolet", "Volkswagen", "Renault", "Peugeot", "Citroën", "Toyota", "Universal / Multimarca"];
+    const CATEGORIES_LIST = ["TODAS", "Filtros", "Bujes / Tacos / Gomitas", "Soportes de Motor", "Iluminación", "Lubricantes", "Frenos", "Otros"];
 
     function checkAuth() {
       const activeUser = localStorage.getItem('autopartes_session');
@@ -630,25 +658,61 @@
       checkAuth();
     }
 
-    /* RENDERIZAR ÍNDICE LATERAL DE MARCAS */
-    function renderSidebarBrands() {
-      const container = document.getElementById('sidebar-brands-container');
-      container.innerHTML = '';
+    /* RENDERIZAR INTERFAZ DE FILTROS SUPERIOR Y COLUMNAS */
+    function renderFiltersUI() {
+      // 1. Marcas superiores horizontales
+      const topBrandsContainer = document.getElementById('top-brands-container');
+      topBrandsContainer.innerHTML = '';
       BRANDS_LIST.forEach(b => {
-        const btn = document.createElement('button');
-        btn.type = 'button';
-        btn.className = `brand-index-btn ${selectedBrandFilter === b ? 'active' : ''}`;
-        btn.innerText = b === 'TODAS' ? '⚡ Ver Todas' : `🚗 ${b}`;
-        btn.onclick = () => {
+        const pill = document.createElement('div');
+        pill.className = `brand-pill ${selectedBrandFilter === b ? 'active' : ''}`;
+        pill.innerText = b === 'TODAS' ? '⚡ Todas' : b;
+        pill.onclick = () => {
           selectedBrandFilter = b;
-          renderSidebarBrands();
+          renderFiltersUI();
           renderProducts();
         };
-        container.appendChild(btn);
+        topBrandsContainer.appendChild(pill);
+      });
+
+      // 2. Columna de Marcas de Auto
+      const colBrandList = document.getElementById('col-brand-list');
+      colBrandList.innerHTML = '';
+      BRANDS_LIST.forEach(b => {
+        const item = document.createElement('div');
+        item.className = `column-item ${selectedBrandFilter === b ? 'active' : ''}`;
+        item.innerText = b;
+        item.onclick = () => {
+          selectedBrandFilter = b;
+          renderFiltersUI();
+          renderProducts();
+        };
+        colBrandList.appendChild(item);
+      });
+
+      // 3. Columna de Categorías
+      const colCatList = document.getElementById('col-cat-list');
+      colCatList.innerHTML = '';
+      CATEGORIES_LIST.forEach(c => {
+        const item = document.createElement('div');
+        item.className = `column-item ${selectedCategoryFilter === c ? 'active' : ''}`;
+        item.innerText = c;
+        item.onclick = () => {
+          selectedCategoryFilter = c;
+          renderFiltersUI();
+          renderProducts();
+        };
+        colCatList.appendChild(item);
       });
     }
 
-    /* MANEJO CORRECTO DE IMAGEN A BASE64 */
+    function setIndexFilter(val, el) {
+      document.querySelectorAll('#col-index-list .column-item').forEach(i => i.classList.remove('active'));
+      el.classList.add('active');
+      renderProducts();
+    }
+
+    /* MANEJO DE IMAGEN BASE64 */
     function handlePhotoUpload(event) {
       const file = event.target.files[0];
       if (file) {
@@ -663,30 +727,26 @@
       }
     }
 
-    /* ESCÁNER INTELIGENTE DESDE EL BUSCADOR (Si existe lo abre, si no, busca) */
+    /* ESCÁNER INTELIGENTE DE CÓDIGO DE BARRAS */
     function startSmartScanner() {
       document.getElementById('scanner-modal').style.display = 'block';
-      
       codeReader.decodeFromVideoDevice(null, 'interactive-video', (result, err) => {
         if (result) {
           const scannedCode = result.text.trim();
           stopScanner();
 
-          // Buscar si el producto ya existe por código principal o equivalencias
           const existing = products.find(p => 
             p.code.toLowerCase() === scannedCode.toLowerCase() || 
             (p.equivalences && p.equivalences.toLowerCase().includes(scannedCode.toLowerCase()))
           );
 
           if (existing) {
-            // Si ya existe, lo abre directamente para editarlo
             alert(`¡Encontrado! Abriendo "${existing.name}"...`);
             editProduct(existing.id);
           } else {
-            // Si no existe, lo manda a la pestaña de carga con el código ya escrito
             document.getElementById('p-code').value = scannedCode;
             switchTab('add');
-            alert(`Código "${scannedCode}" no registrado. Completá los datos para darlo de alta.`);
+            alert(`Código "${scannedCode}" nuevo. Completá los datos para guardarlo.`);
           }
         }
       }).catch(err => {
@@ -696,7 +756,6 @@
       });
     }
 
-    /* ESCÁNER DENTRO DEL FORMULARIO DE CARGA */
     function startFormScanner() {
       document.getElementById('scanner-modal').style.display = 'block';
       codeReader.decodeFromVideoDevice(null, 'interactive-video', (result, err) => {
@@ -748,7 +807,7 @@
       renderProducts();
     }
 
-    /* RENDERIZAR PRODUCTOS CON BÚSQUEDA Y FILTRO LATERAL */
+    /* RENDERIZAR LISTA DE PRODUCTOS */
     function renderProducts() {
       const list = document.getElementById('product-list');
       list.innerHTML = '';
@@ -757,17 +816,18 @@
       const filtered = products.filter(p => {
         const autoB = p.autoBrand || 'Universal / Multimarca';
         const matchBrand = (selectedBrandFilter === 'TODAS') || (autoB === selectedBrandFilter);
+        const matchCat = (selectedCategoryFilter === 'TODAS') || (p.category === selectedCategoryFilter);
         
         const matchSearch = p.name.toLowerCase().includes(term) ||
           p.code.toLowerCase().includes(term) ||
           (p.equivalences && p.equivalences.toLowerCase().includes(term)) ||
           (p.applications && p.applications.toLowerCase().includes(term));
 
-        return matchBrand && matchSearch;
+        return matchBrand && matchCat && matchSearch;
       });
 
       if (filtered.length === 0) {
-        list.innerHTML = `<p style="text-align:center; padding:40px; color:var(--text-muted);">No se encontraron repuestos registrados.</p>`;
+        list.innerHTML = `<p style="text-align:center; padding:30px; color:var(--text-muted);">No se encontraron repuestos con estos filtros.</p>`;
         return;
       }
 
@@ -877,7 +937,7 @@
 
     window.onload = function() {
       checkAuth();
-      renderSidebarBrands();
+      renderFiltersUI();
       renderProducts();
     };
   </script>
