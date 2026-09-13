@@ -284,6 +284,22 @@
       overflow: hidden;
       margin-bottom: 14px;
       background: #0f172a;
+      cursor: pointer;
+    }
+
+    .product-img-wrapper::after {
+      content: '🔍 Toca para ampliar';
+      position: absolute;
+      bottom: 8px;
+      right: 8px;
+      background: rgba(0, 0, 0, 0.65);
+      backdrop-filter: blur(4px);
+      color: #fff;
+      font-size: 0.7rem;
+      padding: 3px 8px;
+      border-radius: 12px;
+      font-weight: 600;
+      pointer-events: none;
     }
 
     .product-img {
@@ -304,6 +320,7 @@
       padding: 4px 10px;
       border-radius: 20px;
       border: 1px solid rgba(255,255,255,0.1);
+      z-index: 2;
     }
 
     .card-top {
@@ -447,6 +464,63 @@
       background: rgba(239, 68, 68, 0.2);
       border-color: #ef4444;
       color: #fca5a5;
+    }
+
+    /* Modal Visor de Imagen Grande y Datos */
+    #image-view-modal {
+      display: none;
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(5, 8, 15, 0.92);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      z-index: 150;
+      overflow-y: auto;
+      padding: 20px 16px;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .image-modal-content {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: var(--radius-lg);
+      max-width: 480px;
+      width: 100%;
+      overflow: hidden;
+      box-shadow: 0 20px 50px rgba(0,0,0,0.6);
+      margin: auto;
+      position: relative;
+    }
+
+    .image-modal-img {
+      width: 100%;
+      max-height: 380px;
+      object-fit: contain;
+      background: #000;
+      display: block;
+    }
+
+    .image-modal-body {
+      padding: 20px;
+    }
+
+    .close-modal-btn {
+      position: absolute;
+      top: 12px;
+      right: 12px;
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      background: rgba(0, 0, 0, 0.6);
+      color: #fff;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      font-size: 1.2rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      z-index: 10;
     }
 
     /* Navegación Flotante Inferior */
@@ -646,7 +720,7 @@
             </div>
           </div>
 
-          <!-- Selección de foto mejorada con opción de Galería y Link -->
+          <!-- Selección de foto con Galería o Link -->
           <div class="form-group" style="margin-top: 10px;">
             <label>Foto del Producto</label>
             <div style="display: flex; gap: 8px;">
@@ -668,6 +742,15 @@
       </div>
     </div>
 
+  </div>
+
+  <!-- Modal Visor de Imagen Ampliada + Datos -->
+  <div id="image-view-modal">
+    <div class="image-modal-content">
+      <button class="close-modal-btn" onclick="closeImageModal()">✕</button>
+      <img id="modal-img-src" class="image-modal-img" src="" alt="Foto en grande">
+      <div id="modal-img-details" class="image-modal-body"></div>
+    </div>
   </div>
 
   <!-- Modal Barcode Scanner -->
@@ -723,7 +806,6 @@
       const editingId = document.getElementById('p-editing-id').value;
 
       if (editingId) {
-        // Modo Edición
         const index = products.findIndex(p => p.id == editingId);
         if (index !== -1) {
           products[index] = {
@@ -741,7 +823,6 @@
           };
         }
       } else {
-        // Modo Nuevo Producto
         const newProduct = {
           id: Date.now(),
           name: document.getElementById('p-name').value,
@@ -803,6 +884,49 @@
       }
     }
 
+    /* Modal para Ampliar Foto y Ver Datos Abajo */
+    function openImageModal(id) {
+      const prod = products.find(p => p.id == id);
+      if (!prod || !prod.photo) return;
+
+      document.getElementById('modal-img-src').src = prod.photo;
+      
+      document.getElementById('modal-img-details').innerHTML = `
+        <div class="card-top">
+          <div>
+            <div class="product-title" style="font-size: 1.25rem;">${prod.name}</div>
+            <div class="product-subtitle" style="font-size: 0.9rem;">${prod.brand} • ${prod.category}</div>
+          </div>
+          <div class="code-chip">${prod.code}</div>
+        </div>
+
+        <div class="compat-banner">
+          <div class="compat-title">🚗 Compatible con / Vehículos:</div>
+          <div class="compat-value">${prod.applications}</div>
+        </div>
+
+        ${prod.equivalences ? `
+          <div style="margin-bottom: 12px;">
+            <span class="eq-chip">🔄 Eq: ${prod.equivalences}</span>
+          </div>
+        ` : ''}
+
+        <div class="card-bottom">
+          <div>
+            <div class="stock-tag">Stock: <strong>${prod.stock} u.</strong></div>
+            <div class="location-tag">📍 ${prod.location}</div>
+          </div>
+          <div class="price-value" style="font-size: 1.4rem;">$${prod.price.toLocaleString('es-AR')}</div>
+        </div>
+      `;
+
+      document.getElementById('image-view-modal').style.display = 'flex';
+    }
+
+    function closeImageModal() {
+      document.getElementById('image-view-modal').style.display = 'none';
+    }
+
     function resetForm() {
       document.getElementById('add-form').reset();
       document.getElementById('p-editing-id').value = '';
@@ -843,7 +967,7 @@
         card.className = 'product-card';
         card.innerHTML = `
           ${p.photo ? `
-            <div class="product-img-wrapper">
+            <div class="product-img-wrapper" onclick="openImageModal(${p.id})">
               <span class="product-badge-cat">${p.category}</span>
               <img src="${p.photo}" class="product-img" alt="${p.name}">
             </div>
@@ -934,3 +1058,4 @@
   </script>
 </body>
 </html>
+
