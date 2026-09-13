@@ -1,4 +1,4 @@
-      <!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="es">
 <head>
   <meta charset="UTF-8">
@@ -276,10 +276,6 @@
       transition: transform 0.2s ease, border-color 0.2s ease;
     }
 
-    .product-card:active {
-      transform: scale(0.99);
-    }
-
     .product-img-wrapper {
       position: relative;
       width: 100%;
@@ -416,6 +412,43 @@
       -webkit-text-fill-color: transparent;
     }
 
+    /* Botones de Acción dentro de la Tarjeta */
+    .card-actions {
+      display: flex;
+      gap: 8px;
+      margin-top: 12px;
+      padding-top: 10px;
+      border-top: 1px dashed rgba(255, 255, 255, 0.08);
+    }
+
+    .btn-action {
+      flex: 1;
+      padding: 8px 12px;
+      font-size: 0.8rem;
+      font-weight: 700;
+      border-radius: var(--radius-sm);
+      border: 1px solid var(--card-border);
+      background: rgba(255, 255, 255, 0.04);
+      color: var(--text-main);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      transition: all 0.2s ease;
+    }
+
+    .btn-action-edit:active {
+      background: rgba(59, 130, 246, 0.2);
+      border-color: #3b82f6;
+    }
+
+    .btn-action-delete:active {
+      background: rgba(239, 68, 68, 0.2);
+      border-color: #ef4444;
+      color: #fca5a5;
+    }
+
     /* Navegación Flotante Inferior */
     .nav-bar {
       position: fixed;
@@ -529,14 +562,16 @@
       <div id="product-list"></div>
     </div>
 
-    <!-- Pestaña Cargar -->
+    <!-- Pestaña Cargar / Editar -->
     <div id="tab-add" class="tab-content">
       <div class="form-card">
-        <div class="form-title">
+        <div class="form-title" id="form-header-title">
           <span>⚡</span> Cargar Nuevo Repuesto
         </div>
         
         <form id="add-form" onsubmit="saveProduct(event)">
+          <input type="hidden" id="p-editing-id" value="">
+
           <div class="form-group">
             <label for="p-name">Nombre del Producto / Repuesto *</label>
             <input type="text" id="p-name" placeholder="Ej: Agua Destilada 5L / Batería 12V 65Ah" required>
@@ -611,17 +646,19 @@
             </div>
           </div>
 
-          <!-- Captura de foto real -->
+          <!-- Selección de foto desde Cámara o Galería -->
           <div class="form-group" style="margin-top: 10px;">
-            <label>Foto Real del Producto</label>
+            <label>Foto del Producto</label>
             <label for="camera-input" class="btn-outline">
-              📸 Tomar Foto con la Cámara
+              🖼️ Elegir de la Galería / Sacar Foto
             </label>
-            <input type="file" id="camera-input" accept="image/*" capture="environment" style="display: none;" onchange="handlePhotoUpload(event)">
+            <!-- Al quitar capture, el celular abre menú para elegir Galería, Archivos o Cámara -->
+            <input type="file" id="camera-input" accept="image/*" style="display: none;" onchange="handlePhotoUpload(event)">
             <img id="photo-preview" class="photo-preview" alt="Foto subida">
           </div>
 
-          <button type="submit" class="btn-primary" style="width: 100%; margin-top: 12px;">💾 Guardar Repuesto</button>
+          <button type="submit" id="btn-submit-form" class="btn-primary" style="width: 100%; margin-top: 12px;">💾 Guardar Repuesto</button>
+          <button type="button" id="btn-cancel-edit" class="btn-outline" style="width: 100%; margin-top: 8px; display: none;" onclick="resetForm()">Cancelar Edición</button>
         </form>
       </div>
     </div>
@@ -668,29 +705,97 @@
     function saveProduct(e) {
       e.preventDefault();
       
-      const newProduct = {
-        id: Date.now(),
-        name: document.getElementById('p-name').value,
-        brand: document.getElementById('p-brand').value || 'Generico',
-        category: document.getElementById('p-cat').value,
-        applications: document.getElementById('p-apps').value || 'Universal / Multimarca',
-        equivalences: document.getElementById('p-eq').value,
-        code: document.getElementById('p-code').value || 'S/C',
-        location: document.getElementById('p-location').value || 'Sin ubicación',
-        price: parseFloat(document.getElementById('p-price').value) || 0,
-        stock: parseInt(document.getElementById('p-stock').value) || 0,
-        photo: currentPhotoBase64
-      };
+      const editingId = document.getElementById('p-editing-id').value;
 
-      products.unshift(newProduct);
+      if (editingId) {
+        // Modo Edición
+        const index = products.findIndex(p => p.id == editingId);
+        if (index !== -1) {
+          products[index] = {
+            id: Number(editingId),
+            name: document.getElementById('p-name').value,
+            brand: document.getElementById('p-brand').value || 'Generico',
+            category: document.getElementById('p-cat').value,
+            applications: document.getElementById('p-apps').value || 'Universal / Multimarca',
+            equivalences: document.getElementById('p-eq').value,
+            code: document.getElementById('p-code').value || 'S/C',
+            location: document.getElementById('p-location').value || 'Sin ubicación',
+            price: parseFloat(document.getElementById('p-price').value) || 0,
+            stock: parseInt(document.getElementById('p-stock').value) || 0,
+            photo: currentPhotoBase64 || products[index].photo
+          };
+        }
+      } else {
+        // Modo Nuevo Producto
+        const newProduct = {
+          id: Date.now(),
+          name: document.getElementById('p-name').value,
+          brand: document.getElementById('p-brand').value || 'Generico',
+          category: document.getElementById('p-cat').value,
+          applications: document.getElementById('p-apps').value || 'Universal / Multimarca',
+          equivalences: document.getElementById('p-eq').value,
+          code: document.getElementById('p-code').value || 'S/C',
+          location: document.getElementById('p-location').value || 'Sin ubicación',
+          price: parseFloat(document.getElementById('p-price').value) || 0,
+          stock: parseInt(document.getElementById('p-stock').value) || 0,
+          photo: currentPhotoBase64
+        };
+        products.unshift(newProduct);
+      }
+
       localStorage.setItem('autopartes_stock', JSON.stringify(products));
-      
-      document.getElementById('add-form').reset();
-      currentPhotoBase64 = '';
-      document.getElementById('photo-preview').style.display = 'none';
-      
+      resetForm();
       switchTab('search');
       renderProducts();
+    }
+
+    function editProduct(id) {
+      const prod = products.find(p => p.id == id);
+      if (!prod) return;
+
+      document.getElementById('p-editing-id').value = prod.id;
+      document.getElementById('p-name').value = prod.name;
+      document.getElementById('p-brand').value = prod.brand === 'Generico' ? '' : prod.brand;
+      document.getElementById('p-cat').value = prod.category;
+      document.getElementById('p-apps').value = prod.applications === 'Universal / Multimarca' ? '' : prod.applications;
+      document.getElementById('p-eq').value = prod.equivalences || '';
+      document.getElementById('p-code').value = prod.code === 'S/C' ? '' : prod.code;
+      document.getElementById('p-location').value = prod.location === 'Sin ubicación' ? '' : prod.location;
+      document.getElementById('p-price').value = prod.price;
+      document.getElementById('p-stock').value = prod.stock;
+
+      currentPhotoBase64 = prod.photo || '';
+      const imgPreview = document.getElementById('photo-preview');
+      if (currentPhotoBase64) {
+        imgPreview.src = currentPhotoBase64;
+        imgPreview.style.display = 'block';
+      } else {
+        imgPreview.style.display = 'none';
+      }
+
+      document.getElementById('form-header-title').innerHTML = '<span>✏️</span> Editar Repuesto';
+      document.getElementById('btn-submit-form').innerHTML = '💾 Actualizar Cambios';
+      document.getElementById('btn-cancel-edit').style.display = 'block';
+
+      switchTab('add');
+    }
+
+    function deleteProduct(id) {
+      if (confirm('¿Estás seguro de borrar este repuesto del sistema?')) {
+        products = products.filter(p => p.id != id);
+        localStorage.setItem('autopartes_stock', JSON.stringify(products));
+        renderProducts();
+      }
+    }
+
+    function resetForm() {
+      document.getElementById('add-form').reset();
+      document.getElementById('p-editing-id').value = '';
+      currentPhotoBase64 = '';
+      document.getElementById('photo-preview').style.display = 'none';
+      document.getElementById('form-header-title').innerHTML = '<span>⚡</span> Cargar Nuevo Repuesto';
+      document.getElementById('btn-submit-form').innerHTML = '💾 Guardar Repuesto';
+      document.getElementById('btn-cancel-edit').style.display = 'none';
     }
 
     function renderProducts(filter = '') {
@@ -755,6 +860,11 @@
             </div>
             <div class="price-value">$${p.price.toLocaleString('es-AR')}</div>
           </div>
+
+          <div class="card-actions">
+            <button class="btn-action btn-action-edit" onclick="editProduct(${p.id})">✏️ Editar / Foto</button>
+            <button class="btn-action btn-action-delete" onclick="deleteProduct(${p.id})">🗑️ Borrar</button>
+          </div>
         `;
         list.appendChild(card);
       });
@@ -809,4 +919,3 @@
   </script>
 </body>
 </html>
-    
