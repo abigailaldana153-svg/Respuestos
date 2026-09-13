@@ -3,213 +3,482 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Control de Stock - AutoPartes</title>
+  <title>RepuestosPro - Control de Stock Ultra Moderno</title>
   <script src="https://unpkg.com/@zxing/library@latest"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <style>
     :root {
-      --bg: #0f172a;
-      --card-bg: #1e293b;
-      --accent: #f59e0b;
-      --accent-hover: #d97706;
-      --text: #f8fafc;
+      --bg-gradient: linear-gradient(135deg, #0b0f19 0%, #111827 50%, #0d1322 100%);
+      --card-bg: rgba(23, 31, 51, 0.75);
+      --card-border: rgba(255, 255, 255, 0.08);
+      --input-bg: rgba(15, 23, 42, 0.6);
+      
+      --accent-gradient: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+      --accent-glow: rgba(59, 130, 246, 0.35);
+      --accent-secondary: #06b6d4;
+      
+      --text-main: #f8fafc;
       --text-muted: #94a3b8;
-      --border: #334155;
-      --badge-bg: #334155;
-      --success: #22c55e;
+      --text-dim: #64748b;
+      
+      --badge-eq-bg: rgba(245, 158, 11, 0.12);
+      --badge-eq-border: rgba(245, 158, 11, 0.3);
+      --badge-eq-text: #fbbf24;
+      
+      --radius-lg: 20px;
+      --radius-md: 14px;
+      --radius-sm: 10px;
     }
 
     * {
       box-sizing: border-box;
       margin: 0;
       padding: 0;
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, Roboto, sans-serif;
+      -webkit-tap-highlight-color: transparent;
     }
 
     body {
-      background-color: var(--bg);
-      color: var(--text);
-      padding-bottom: 70px;
+      background: #0b0f19;
+      background-image: var(--bg-gradient);
+      color: var(--text-main);
+      padding-bottom: 90px;
+      min-height: 100vh;
     }
 
+    /* Header Cristal */
     header {
-      background-color: var(--card-bg);
-      padding: 16px;
-      text-align: center;
-      border-bottom: 1px solid var(--border);
+      background: rgba(15, 23, 42, 0.85);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      padding: 16px 20px;
+      border-bottom: 1px solid var(--card-border);
       position: sticky;
       top: 0;
-      z-index: 10;
+      z-index: 20;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
     }
 
-    header h1 {
-      font-size: 1.2rem;
-      color: var(--accent);
+    .brand-logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
       font-weight: 800;
+      font-size: 1.25rem;
+      letter-spacing: -0.5px;
+      background: linear-gradient(135deg, #ffffff 0%, #94a3b8 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .brand-badge {
+      background: var(--accent-gradient);
+      color: #fff;
+      font-size: 0.7rem;
+      padding: 3px 8px;
+      border-radius: 20px;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+      box-shadow: 0 2px 10px var(--accent-glow);
     }
 
     .container {
-      padding: 16px;
-      max-width: 600px;
+      padding: 20px 16px;
+      max-width: 520px;
       margin: 0 auto;
     }
 
-    .search-box {
-      margin-bottom: 16px;
+    /* Buscador */
+    .search-wrapper {
+      position: relative;
+      margin-bottom: 20px;
       display: flex;
-      gap: 8px;
+      gap: 10px;
     }
 
-    input, select, textarea {
+    .search-input-group {
+      position: relative;
+      flex: 1;
+    }
+
+    .search-icon {
+      position: absolute;
+      left: 14px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--text-muted);
+      font-size: 1.1rem;
+      pointer-events: none;
+    }
+
+    .search-wrapper input {
       width: 100%;
-      padding: 12px;
-      background-color: var(--card-bg);
-      border: 1px solid var(--border);
-      border-radius: 8px;
-      color: var(--text);
+      padding: 14px 14px 14px 44px;
+      background: var(--input-bg);
+      border: 1px solid var(--card-border);
+      border-radius: var(--radius-md);
+      color: var(--text-main);
       font-size: 0.95rem;
+      backdrop-filter: blur(10px);
+      transition: all 0.25s ease;
+      box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.2);
     }
 
-    input:focus, textarea:focus {
+    .search-wrapper input:focus {
       outline: none;
-      border-color: var(--accent);
+      border-color: #3b82f6;
+      box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2), inset 0 2px 4px rgba(0,0,0,0.2);
     }
 
-    .btn {
-      background-color: var(--accent);
-      color: #000;
+    .btn-icon {
+      width: 48px;
+      height: 48px;
+      border-radius: var(--radius-md);
+      background: var(--input-bg);
+      border: 1px solid var(--card-border);
+      color: var(--text-main);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.2rem;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      flex-shrink: 0;
+    }
+
+    .btn-icon:active {
+      transform: scale(0.95);
+      background: rgba(59, 130, 246, 0.15);
+      border-color: #3b82f6;
+    }
+
+    /* Botones Modernos */
+    .btn-primary {
+      background: var(--accent-gradient);
+      color: #ffffff;
       font-weight: 700;
-      padding: 12px 16px;
+      padding: 14px 20px;
       border: none;
-      border-radius: 8px;
+      border-radius: var(--radius-md);
       cursor: pointer;
       display: inline-flex;
       align-items: center;
       justify-content: center;
+      gap: 10px;
+      font-size: 0.95rem;
+      box-shadow: 0 4px 15px var(--accent-glow);
+      transition: all 0.25s ease;
+    }
+
+    .btn-primary:active {
+      transform: translateY(1px);
+      box-shadow: 0 2px 8px var(--accent-glow);
+    }
+
+    .btn-outline {
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px dashed rgba(255, 255, 255, 0.2);
+      color: var(--text-main);
+      padding: 14px;
+      border-radius: var(--radius-md);
+      cursor: pointer;
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      font-weight: 600;
+      transition: all 0.2s ease;
+    }
+
+    .btn-outline:active {
+      background: rgba(255, 255, 255, 0.08);
+      border-color: var(--accent-secondary);
+    }
+
+    /* Formularios */
+    .form-card {
+      background: var(--card-bg);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid var(--card-border);
+      border-radius: var(--radius-lg);
+      padding: 22px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+    }
+
+    .form-title {
+      font-size: 1.2rem;
+      font-weight: 800;
+      margin-bottom: 18px;
+      display: flex;
+      align-items: center;
       gap: 8px;
-    }
-
-    .btn-secondary {
-      background-color: var(--border);
-      color: var(--text);
-    }
-
-    .btn:hover {
-      background-color: var(--accent-hover);
+      color: var(--text-main);
     }
 
     .form-group {
-      margin-bottom: 14px;
+      margin-bottom: 16px;
+    }
+
+    .form-row {
+      display: flex;
+      gap: 12px;
+    }
+
+    .form-row .form-group {
+      flex: 1;
     }
 
     .form-group label {
       display: block;
-      font-size: 0.85rem;
+      font-size: 0.8rem;
       color: var(--text-muted);
       margin-bottom: 6px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
     }
 
-    .card {
-      background-color: var(--card-bg);
-      border-radius: 10px;
-      padding: 14px;
-      margin-bottom: 12px;
-      border: 1px solid var(--border);
+    input, select, textarea {
+      width: 100%;
+      padding: 12px 14px;
+      background: var(--input-bg);
+      border: 1px solid var(--card-border);
+      border-radius: var(--radius-sm);
+      color: var(--text-main);
+      font-size: 0.95rem;
+      transition: all 0.2s ease;
     }
 
-    .card-header {
+    input:focus, select:focus, textarea:focus {
+      outline: none;
+      border-color: #3b82f6;
+      background: rgba(15, 23, 42, 0.9);
+    }
+
+    /* Tarjetas de Producto */
+    .product-card {
+      background: var(--card-bg);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid var(--card-border);
+      border-radius: var(--radius-lg);
+      padding: 16px;
+      margin-bottom: 16px;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
+      position: relative;
+      overflow: hidden;
+      transition: transform 0.2s ease, border-color 0.2s ease;
+    }
+
+    .product-card:active {
+      transform: scale(0.99);
+    }
+
+    .product-img-wrapper {
+      position: relative;
+      width: 100%;
+      height: 190px;
+      border-radius: var(--radius-md);
+      overflow: hidden;
+      margin-bottom: 14px;
+      background: #0f172a;
+    }
+
+    .product-img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .product-badge-cat {
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      background: rgba(15, 23, 42, 0.8);
+      backdrop-filter: blur(8px);
+      color: var(--text-main);
+      font-size: 0.72rem;
+      font-weight: 700;
+      padding: 4px 10px;
+      border-radius: 20px;
+      border: 1px solid rgba(255,255,255,0.1);
+    }
+
+    .card-top {
       display: flex;
       justify-content: space-between;
       align-items: flex-start;
-      margin-bottom: 8px;
+      gap: 10px;
+      margin-bottom: 10px;
     }
 
-    .card-title {
+    .product-title {
       font-size: 1.1rem;
-      font-weight: 700;
-      color: var(--text);
+      font-weight: 800;
+      color: var(--text-main);
+      line-height: 1.3;
     }
 
-    .card-code {
-      font-size: 0.85rem;
-      color: var(--accent);
-      font-weight: 700;
-    }
-
-    .tag-container {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 6px;
-      margin: 8px 0;
-    }
-
-    .tag {
-      background-color: var(--badge-bg);
+    .product-subtitle {
+      font-size: 0.8rem;
       color: var(--text-muted);
-      font-size: 0.75rem;
-      padding: 4px 8px;
-      border-radius: 4px;
+      margin-top: 2px;
+      font-weight: 500;
     }
 
-    .tag-eq {
-      border: 1px solid var(--accent);
-      color: var(--accent);
+    .code-chip {
+      background: rgba(59, 130, 246, 0.12);
+      border: 1px solid rgba(59, 130, 246, 0.3);
+      color: #60a5fa;
+      font-size: 0.8rem;
+      font-weight: 700;
+      padding: 4px 10px;
+      border-radius: 8px;
+      letter-spacing: 0.5px;
+      white-space: nowrap;
     }
 
-    .card-footer {
+    /* Banner de Aplicación */
+    .compat-banner {
+      background: linear-gradient(135deg, rgba(30, 41, 59, 0.8) 0%, rgba(15, 23, 42, 0.9) 100%);
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      border-left: 3px solid #3b82f6;
+      border-radius: var(--radius-sm);
+      padding: 10px 12px;
+      margin: 10px 0;
+      font-size: 0.88rem;
+    }
+
+    .compat-title {
+      font-size: 0.72rem;
+      color: var(--text-muted);
+      font-weight: 700;
+      text-transform: uppercase;
+      margin-bottom: 3px;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .compat-value {
+      color: #e2e8f0;
+      font-weight: 600;
+    }
+
+    /* Equivalencias */
+    .eq-chip {
+      background: var(--badge-eq-bg);
+      border: 1px solid var(--badge-eq-border);
+      color: var(--badge-eq-text);
+      font-size: 0.8rem;
+      padding: 6px 12px;
+      border-radius: 8px;
+      margin-top: 8px;
+      display: inline-block;
+      font-weight: 600;
+    }
+
+    .card-bottom {
       display: flex;
       justify-content: space-between;
-      align-items: center;
-      margin-top: 10px;
-      padding-top: 8px;
-      border-top: 1px solid var(--border);
-      font-size: 0.9rem;
+      align-items: flex-end;
+      margin-top: 14px;
+      padding-top: 12px;
+      border-top: 1px solid rgba(255, 255, 255, 0.06);
     }
 
-    .price {
-      font-weight: 700;
-      color: var(--success);
-      font-size: 1.1rem;
+    .stock-tag {
+      font-size: 0.82rem;
+      color: var(--text-muted);
     }
 
+    .stock-tag strong {
+      color: var(--text-main);
+    }
+
+    .location-tag {
+      font-size: 0.78rem;
+      color: var(--text-dim);
+      margin-top: 2px;
+    }
+
+    .price-value {
+      font-size: 1.25rem;
+      font-weight: 800;
+      background: linear-gradient(135deg, #34d399 0%, #10b981 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    /* Navegación Flotante Inferior */
     .nav-bar {
       position: fixed;
-      bottom: 0;
-      left: 0;
-      right: 0;
-      background-color: var(--card-bg);
+      bottom: 16px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: calc(100% - 32px);
+      max-width: 480px;
+      background: rgba(15, 23, 42, 0.85);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: 30px;
+      padding: 6px;
       display: flex;
-      border-top: 1px solid var(--border);
+      box-shadow: 0 12px 32px rgba(0, 0, 0, 0.4);
+      z-index: 30;
     }
 
     .nav-item {
       flex: 1;
       padding: 12px;
-      text-align: center;
-      color: var(--text-muted);
-      background: none;
       border: none;
+      background: transparent;
+      color: var(--text-muted);
       font-size: 0.85rem;
+      font-weight: 700;
+      border-radius: 24px;
       cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     }
 
     .nav-item.active {
-      color: var(--accent);
-      font-weight: 700;
+      background: var(--accent-gradient);
+      color: #ffffff;
+      box-shadow: 0 4px 15px var(--accent-glow);
     }
 
     .tab-content {
       display: none;
+      animation: fadeIn 0.25s ease-in-out;
     }
 
     .tab-content.active {
       display: block;
     }
 
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(6px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Modal Escáner */
     #scanner-modal {
       display: none;
       position: fixed;
       top: 0; left: 0; right: 0; bottom: 0;
-      background: rgba(0,0,0,0.9);
+      background: rgba(5, 8, 15, 0.95);
+      backdrop-filter: blur(10px);
       z-index: 100;
       flex-direction: column;
       align-items: center;
@@ -217,96 +486,169 @@
       padding: 20px;
     }
 
-    video {
+    #scanner-modal video {
       width: 100%;
-      max-width: 400px;
-      border-radius: 8px;
-      border: 2px solid var(--accent);
+      max-width: 360px;
+      border-radius: var(--radius-lg);
+      border: 2px solid #3b82f6;
+      box-shadow: 0 0 30px rgba(59, 130, 246, 0.3);
+    }
+
+    .photo-preview {
+      width: 100%;
+      max-height: 220px;
+      object-fit: cover;
+      border-radius: var(--radius-md);
+      margin-top: 12px;
+      border: 1px solid var(--card-border);
+      display: none;
     }
   </style>
 </head>
 <body>
 
   <header>
-    <h1>⚙️ Repuestos & Stock</h1>
+    <div class="brand-logo">
+      ⚙️ RepuestosPro
+    </div>
+    <div class="brand-badge">ULTRA MODERNO</div>
   </header>
 
   <div class="container">
     
-    <!-- Pestaña Buscar / Lista -->
+    <!-- Pestaña Buscar -->
     <div id="tab-search" class="tab-content active">
-      <div class="search-box">
-        <input type="text" id="search-input" placeholder="Buscar por repuesto, código, equivalencia o auto..." oninput="filterProducts()">
-        <button class="btn btn-secondary" onclick="openScanner('search')">📷</button>
+      <div class="search-wrapper">
+        <div class="search-input-group">
+          <span class="search-icon">🔍</span>
+          <input type="text" id="search-input" placeholder="Buscar equivalencia (ej: W712), auto o código..." oninput="filterProducts()">
+        </div>
+        <button class="btn-icon" onclick="openScanner('search')" title="Escanear código de barras">📷</button>
       </div>
 
       <div id="product-list"></div>
     </div>
 
-    <!-- Pestaña Agregar Repuesto -->
+    <!-- Pestaña Cargar -->
     <div id="tab-add" class="tab-content">
-      <form id="add-form" onsubmit="saveProduct(event)">
-        <div class="form-group">
-          <label for="p-name">Nombre del Repuesto *</label>
-          <input type="text" id="p-name" placeholder="Ej: Filtro de Aceite" required>
+      <div class="form-card">
+        <div class="form-title">
+          <span>⚡</span> Cargar Nuevo Repuesto
         </div>
-
-        <div class="form-group">
-          <label for="p-code">Código de Pieza (Principal / Barras) *</label>
-          <div style="display: flex; gap: 8px;">
-            <input type="text" id="p-code" placeholder="Ej: WO-200 / 7791234567890" required>
-            <button type="button" class="btn btn-secondary" onclick="openScanner('add')">📷</button>
+        
+        <form id="add-form" onsubmit="saveProduct(event)">
+          <div class="form-group">
+            <label for="p-name">Nombre del Producto / Repuesto *</label>
+            <input type="text" id="p-name" placeholder="Ej: Filtro de Aceite Blindex" required>
           </div>
-        </div>
 
-        <div class="form-group">
-          <label for="p-eq">Equivalencias / Códigos Cruzados</label>
-          <input type="text" id="p-eq" placeholder="Ej: Mann W712, Fram PH5796, Tecneco OL200">
-        </div>
-
-        <div class="form-group">
-          <label for="p-apps">Aplicaciones / Vehículos Compatibles</label>
-          <textarea id="p-apps" rows="2" placeholder="Ej: Fiat Palio, Siena, Uno Fire 1.3 16V"></textarea>
-        </div>
-
-        <div class="form-group">
-          <label for="p-brand">Marca</label>
-          <input type="text" id="p-brand" placeholder="Ej: Wega">
-        </div>
-
-        <div class="form-group" style="display: flex; gap: 10px;">
-          <div style="flex: 1;">
-            <label for="p-stock">Cantidad / Stock</label>
-            <input type="number" id="p-stock" value="1" min="0">
+          <div class="form-row">
+            <div class="form-group">
+              <label for="p-brand">Marca *</label>
+              <input type="text" id="p-brand" placeholder="Ej: Wega / Fiat" required>
+            </div>
+            <div class="form-group">
+              <label for="p-cat">Categoría *</label>
+              <select id="p-cat">
+                <option value="Filtros">Filtros</option>
+                <option value="Frenos">Frenos</option>
+                <option value="Suspensión">Suspensión</option>
+                <option value="Motor/Distribución">Motor/Distribución</option>
+                <option value="Lubricantes">Lubricantes</option>
+                <option value="Electricidad">Electricidad</option>
+                <option value="Otros">Otros</option>
+              </select>
+            </div>
           </div>
-          <div style="flex: 1;">
-            <label for="p-price">Precio ($)</label>
-            <input type="number" id="p-price" placeholder="Ej: 8500" step="0.01">
-          </div>
-        </div>
 
-        <button type="submit" class="btn" style="width: 100%; margin-top: 10px;">💾 Guardar Repuesto</button>
-      </form>
+          <div class="form-group">
+            <label for="p-apps">¿Para qué autos / modelos sirve? *</label>
+            <input type="text" id="p-apps" placeholder="Ej: Palio, Siena, Uno Fire 1.3, Strada" required>
+          </div>
+
+          <div class="form-group">
+            <label for="p-eq">Equivalencias / Códigos Cruzados</label>
+            <input type="text" id="p-eq" placeholder="Ej: Mann W712, Fram PH5796, Tecneco OL200">
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label for="p-code">Código de Pieza *</label>
+              <div style="display: flex; gap: 6px;">
+                <input type="text" id="p-code" placeholder="WO-200" required>
+                <button type="button" class="btn-icon" style="width:42px; height:42px; font-size:1rem;" onclick="openScanner('add')">📷</button>
+              </div>
+            </div>
+            <div class="form-group">
+              <label for="p-location">Ubicación Estante</label>
+              <input type="text" id="p-location" placeholder="Estante A2">
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label for="p-price">Precio ($) *</label>
+              <input type="number" id="p-price" placeholder="8500" step="0.01" required>
+            </div>
+            <div class="form-group">
+              <label for="p-stock">Stock Unidades *</label>
+              <input type="number" id="p-stock" value="10" min="0" required>
+            </div>
+          </div>
+
+          <!-- Captura de foto real -->
+          <div class="form-group" style="margin-top: 10px;">
+            <label>Foto Real del Producto</label>
+            <label for="camera-input" class="btn-outline">
+              📸 Tomar Foto con la Cámara
+            </label>
+            <input type="file" id="camera-input" accept="image/*" capture="environment" style="display: none;" onchange="handlePhotoUpload(event)">
+            <img id="photo-preview" class="photo-preview" alt="Foto subida">
+          </div>
+
+          <button type="submit" class="btn-primary" style="width: 100%; margin-top: 12px;">💾 Guardar Repuesto</button>
+        </form>
+      </div>
     </div>
 
   </div>
 
-  <!-- Modal Escáner -->
+  <!-- Modal Barcode Scanner -->
   <div id="scanner-modal">
-    <p style="color:#fff; margin-bottom: 12px;">Apuntá al código de barras</p>
+    <p style="color:#fff; margin-bottom: 16px; font-weight: 600;">Apuntá al código de barras</p>
     <video id="video-preview"></video>
-    <button class="btn" style="margin-top: 16px; background: #ef4444; color: #fff;" onclick="closeScanner()">Cerrar Cámara</button>
+    <button class="btn-primary" style="margin-top: 20px; background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);" onclick="closeScanner()">Cerrar Cámara</button>
   </div>
 
+  <!-- Navegación Flotante -->
   <nav class="nav-bar">
-    <button class="nav-item active" onclick="switchTab('search')">🔍 Buscar</button>
-    <button class="nav-item" onclick="switchTab('add')">➕ Agregar</button>
+    <button class="nav-item active" id="btn-tab-search" onclick="switchTab('search')">
+      🔍 Buscar
+    </button>
+    <button class="nav-item" id="btn-tab-add" onclick="switchTab('add')">
+      ➕ Cargar
+    </button>
   </nav>
 
   <script>
     let products = JSON.parse(localStorage.getItem('autopartes_stock') || '[]');
     let codeReader = null;
     let currentScanTarget = 'search';
+    let currentPhotoBase64 = '';
+
+    function handlePhotoUpload(event) {
+      const file = event.target.files[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+          currentPhotoBase64 = e.target.result;
+          const imgPreview = document.getElementById('photo-preview');
+          imgPreview.src = currentPhotoBase64;
+          imgPreview.style.display = 'block';
+        };
+        reader.readAsDataURL(file);
+      }
+    }
 
     function saveProduct(e) {
       e.preventDefault();
@@ -314,18 +656,24 @@
       const newProduct = {
         id: Date.now(),
         name: document.getElementById('p-name').value,
-        code: document.getElementById('p-code').value,
-        equivalences: document.getElementById('p-eq').value,
+        brand: document.getElementById('p-brand').value,
+        category: document.getElementById('p-cat').value,
         applications: document.getElementById('p-apps').value,
-        brand: document.getElementById('p-brand').value || 'Generica',
+        equivalences: document.getElementById('p-eq').value,
+        code: document.getElementById('p-code').value,
+        location: document.getElementById('p-location').value || 'Sin ubicación',
+        price: parseFloat(document.getElementById('p-price').value) || 0,
         stock: parseInt(document.getElementById('p-stock').value) || 0,
-        price: parseFloat(document.getElementById('p-price').value) || 0
+        photo: currentPhotoBase64
       };
 
-      products.push(newProduct);
+      products.unshift(newProduct);
       localStorage.setItem('autopartes_stock', JSON.stringify(products));
       
       document.getElementById('add-form').reset();
+      currentPhotoBase64 = '';
+      document.getElementById('photo-preview').style.display = 'none';
+      
       switchTab('search');
       renderProducts();
     }
@@ -341,41 +689,56 @@
         p.code.toLowerCase().includes(term) ||
         (p.equivalences && p.equivalences.toLowerCase().includes(term)) ||
         (p.applications && p.applications.toLowerCase().includes(term)) ||
-        p.brand.toLowerCase().includes(term)
+        (p.brand && p.brand.toLowerCase().includes(term)) ||
+        (p.category && p.category.toLowerCase().includes(term))
       );
 
       if (filtered.length === 0) {
-        list.innerHTML = '<p style="text-align:center; color: var(--text-muted); margin-top: 20px;">No se encontraron repuestos.</p>';
+        list.innerHTML = `
+          <div style="text-align:center; padding: 40px 20px; color: var(--text-muted);">
+            <div style="font-size: 2.5rem; margin-bottom: 10px;">📦</div>
+            <p style="font-weight: 600;">No se encontraron repuestos o equivalencias.</p>
+          </div>
+        `;
         return;
       }
 
       filtered.forEach(p => {
         const card = document.createElement('div');
-        card.className = 'card';
+        card.className = 'product-card';
         card.innerHTML = `
-          <div class="card-header">
-            <div>
-              <div class="card-title">${p.name}</div>
-              <div style="font-size: 0.8rem; color: var(--text-muted);">${p.brand}</div>
+          ${p.photo ? `
+            <div class="product-img-wrapper">
+              <span class="product-badge-cat">${p.category}</span>
+              <img src="${p.photo}" class="product-img" alt="${p.name}">
             </div>
-            <div class="card-code">${p.code}</div>
+          ` : ''}
+          
+          <div class="card-top">
+            <div>
+              <div class="product-title">${p.name}</div>
+              <div class="product-subtitle">${p.brand} ${!p.photo ? '• ' + p.category : ''}</div>
+            </div>
+            <div class="code-chip">${p.code}</div>
+          </div>
+
+          <div class="compat-banner">
+            <div class="compat-title">🚗 Compatible con / Vehículos:</div>
+            <div class="compat-value">${p.applications}</div>
           </div>
           
           ${p.equivalences ? `
-            <div class="tag-container">
-              <span class="tag tag-eq">🔄 Eq: ${p.equivalences}</span>
+            <div>
+              <span class="eq-chip">🔄 Eq: ${p.equivalences}</span>
             </div>
           ` : ''}
 
-          ${p.applications ? `
-            <div style="font-size: 0.85rem; color: var(--text-muted); margin-top: 6px;">
-              🚗 <strong>Aplicación:</strong> ${p.applications}
+          <div class="card-bottom">
+            <div>
+              <div class="stock-tag">Stock: <strong>${p.stock} u.</strong></div>
+              <div class="location-tag">📍 ${p.location}</div>
             </div>
-          ` : ''}
-
-          <div class="card-footer">
-            <div>Stock: <strong>${p.stock} u.</strong></div>
-            <div class="price">$${p.price.toLocaleString()}</div>
+            <div class="price-value">$${p.price.toLocaleString('es-AR')}</div>
           </div>
         `;
         list.appendChild(card);
@@ -393,10 +756,10 @@
 
       if (tab === 'search') {
         document.getElementById('tab-search').classList.add('active');
-        event.target.classList.add('active');
+        document.getElementById('btn-tab-search').classList.add('active');
       } else {
         document.getElementById('tab-add').classList.add('active');
-        event.target.classList.add('active');
+        document.getElementById('btn-tab-add').classList.add('active');
       }
     }
 
