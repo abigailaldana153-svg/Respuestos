@@ -1,771 +1,330 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>RepuestosPro — Sistema Profesional</title>
-  <script src="https://unpkg.com/@zxing/library@latest"></script>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <style>
-    :root {
-      --primario: #165DFF;
-      --primario-claro: #E8F3FF;
-      --exito: #00B42A;
-      --peligro: #F53F3F;
-      --texto-oscuro: #1D2129;
-      --texto-medio: #4E5969;
-      --texto-claro: #86909C;
-      --fondo: #F2F3F5;
-      --blanco: #FFFFFF;
-      --borde: #E5E6EB;
-      --sombra-suave: 0 2px 8px rgba(0,0,0,0.06);
-      --sombra-media: 0 4px 16px rgba(22,93,255,0.12);
-      --radio: 12px;
-      --radio-grande: 16px;
+import 'package:flutter/material.dart';
+import 'package:mobile_scanner/mobile_scanner.dart'; // Librería de escáner en tiempo real
+
+void main() {
+  runApp(MyApp());
+}
+
+class MyApp extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'Stock & Ventas Multi-Rubro',
+      theme: ThemeData(
+        primarySwatch: Colors.indigo,
+        useMaterial3: true,
+      ),
+      initialRoute: '/',
+      routes: {
+        '/': (context) => DashboardScreen(),
+        '/escaner': (context) => ScannerScreen(),
+        '/nuevo-producto': (context) => ProductFormScreen(),
+      },
+    );
+  }
+}
+
+// ==========================================
+// 1. PANTALLA PRINCIPAL / DASHBOARD
+// ==========================================
+class DashboardScreen extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('Control de Stock & Mostrador'),
+        actions: [
+          IconButton(
+            icon: Icon(Icons.notifications_active, color: Colors.orange),
+            onPressed: () {
+              // Aquí se abriría la lista de productos con stock bajo
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(content: Text("🚨 Alerta: 3 productos por debajo del stock mínimo")),
+              );
+            },
+          )
+        ],
+      ),
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            // Banner de Alertas de Reposición
+            Container(
+              padding: EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: Colors.red.shade50,
+                border: Border.all(color: Colors.red.shade200),
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Row(
+                children: [
+                  Icon(Icons.warning_amber_rounded, color: Colors.red, size: 30),
+                  SizedBox(width: 12),
+                  Expanded(
+                    child: Text(
+                      "Atención: Hay productos agotándose o sin stock para reponer.",
+                      style: TextStyle(color: Colors.red.shade800, fontWeight: FontWeight.bold),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            SizedBox(height: 24),
+            
+            // Botón Gigante de Escáner Instantáneo (Ventas / Control)
+            ElevatedButton.icon(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.indigo,
+                foregroundColor: Colors.white,
+                padding: EdgeInsets.symmetric(vertical: 20),
+                textStyle: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              ),
+              icon: Icon(Icons.qr_code_scanner, size: 28),
+              label: Text("ESCANEAR CÓDIGO (VENTA / ENTRADA)"),
+              onPressed: () {
+                Navigator.pushNamed(context, '/escaner');
+              },
+            ),
+            SizedBox(height: 16),
+            
+            // Botón para agregar producto manual
+            OutlinedButton.icon(
+              style: OutlinedButton.styleFrom(
+                padding: EdgeInsets.symmetric(vertical: 16),
+              ),
+              icon: Icon(Icons.add_box),
+              label: Text("Registrar Producto Manualmente"),
+              onPressed: () {
+                Navigator.pushNamed(context, '/nuevo-producto');
+              },
+            ),
+            SizedBox(height: 24),
+            
+            Text("Últimos movimientos / Ventas:", style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+            Expanded(
+              child: ListView(
+                children: [
+                  ListTile(
+                    leading: CircleAvatar(backgroundColor: Colors.green.shade100, child: Icon(Icons.sell, color: Colors.green)),
+                    title: Text("Filtro de Aceite / Remera Algodón"),
+                    subtitle: Text("Venta realizada hace 5 mins (-1 stock)"),
+                    trailing: Text("\$ 15,000", style: TextStyle(fontWeight: FontWeight.bold)),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+// ==========================================
+// 2. PANTALLA DE ESCÁNER INSTANTÁNEO
+// ==========================================
+class ScannerScreen extends StatefulWidget {
+  @override
+  _ScannerScreenState createState() => _ScannerScreenState();
+}
+
+class _ScannerScreenState extends State<ScannerScreen> {
+  bool _procesando = false;
+
+  void _manejarCodigoDetectado(String codigoBarras) async {
+    if (_procesando) return;
+    setState(() { _procesando = true; });
+
+    // Simulación de búsqueda en base de datos local o nube (Firebase)
+    // Supongamos que buscamos si el código existe:
+    bool productoExiste = await _verificarSiExisteEnBD(codigoBarras);
+
+    if (!mounted) return;
+
+    if (productoExiste) {
+      // SI EXISTE: Descuenta stock o suma a la venta al instante
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("✅ Producto encontrado. Stock descontado con éxito.")),
+      );
+      Navigator.pop(context);
+    } else {
+      // NO EXISTE: Te manda al formulario con el código ya cargado para darlo de alta
+      Navigator.pushReplacementNamed(
+        context, 
+        '/nuevo-producto', 
+        arguments: codigoBarras,
+      );
     }
+  }
 
-    * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; }
-    body { background-color: var(--fondo); color: var(--texto-oscuro); padding-bottom: 80px; min-height: 100vh; }
+  Future<bool> _verificarSiExisteEnBD(String codigo) async {
+    await Future.delayed(Duration(seconds: 1)); // Simula consulta rápida
+    return false; // Devolvemos falso para probar el alta de nuevos productos
+  }
 
-    /* LOGIN */
-    #pantalla-login {
-      position: fixed; inset: 0;
-      background: linear-gradient(135deg, #165DFF 0%, #0E42D2 100%);
-      display: flex; align-items: center; justify-content: center; padding: 24px; z-index: 9999;
-    }
-    .login-card {
-      background: var(--blanco); border-radius: 20px; padding: 40px 28px;
-      width: 100%; max-width: 400px; box-shadow: 0 10px 40px rgba(0,0,0,0.15); text-align: center;
-    }
-    .login-logo { display: flex; align-items: center; justify-content: center; gap: 12px; margin-bottom: 12px; }
-    .login-logo-img {
-      width: 48px; height: 48px; border-radius: 12px; background: var(--primario-claro);
-      display: flex; align-items: center; justify-content: center; font-size: 28px;
-    }
-    .login-card h1 { font-size: 24px; font-weight: 700; color: var(--texto-oscuro); }
-    .login-card p { color: var(--texto-medio); margin-bottom: 32px; }
-
-    /* CABECERA */
-    header {
-      background: var(--blanco); padding: 14px 20px; border-bottom: 1px solid var(--borde);
-      position: sticky; top: 0; z-index: 100; display: flex; justify-content: space-between; align-items: center;
-      box-shadow: var(--sombra-suave);
-    }
-    .logo-contenedor { display: flex; align-items: center; gap: 10px; }
-    .logo-icono {
-      width: 36px; height: 36px; border-radius: 10px; background: var(--primario); color: white;
-      display: flex; align-items: center; justify-content: center; font-size: 20px; flex-shrink: 0;
-    }
-    .logo-texto { font-size: 20px; font-weight: 700; color: var(--primario); line-height: 1; }
-    .usuario { font-size: 13px; color: var(--texto-medio); background: var(--fondo); padding: 6px 12px; border-radius: 20px; }
-
-    .contenedor { max-width: 1200px; margin: 0 auto; padding: 20px; }
-    .titulo-seccion {
-      font-size: 15px; font-weight: 600; color: var(--texto-medio); text-transform: uppercase;
-      letter-spacing: 0.5px; margin-bottom: 12px; display: flex; align-items: center; gap: 6px;
-    }
-
-    /* ÍNDICE DE MARCAS — LOGO + NOMBRE */
-    .indice-marcas {
-      background: var(--blanco); border-radius: var(--radio-grande); padding: 20px;
-      margin-bottom: 20px; box-shadow: var(--sombra-suave);
-    }
-    .grid-marcas { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 12px; }
-
-    .etiqueta-marca {
-      padding: 12px 14px; border-radius: var(--radio); border: 1px solid var(--borde);
-      background: var(--blanco); color: var(--texto-medio); font-weight: 600; font-size: 14px;
-      cursor: pointer; transition: all 0.25s ease;
-      display: flex; align-items: center; justify-content: flex-start; gap: 10px;
-    }
-    .logo-marca {
-      width: 28px; height: 28px; object-fit: contain; flex-shrink: 0;
-      background: #fff; padding: 2px; border-radius: 6px; border: 1px solid #eee;
-    }
-    .etiqueta-marca:hover { border-color: var(--primario); color: var(--primario); background: var(--primario-claro); }
-    .etiqueta-marca.activa {
-      background: var(--primario); border-color: var(--primario); color: white;
-      box-shadow: 0 4px 12px rgba(22,93,255,0.3);
-    }
-    .etiqueta-marca.activa .logo-marca { background: rgba(255,255,255,0.25); border-color: rgba(255,255,255,0.3); }
-
-    /* FILTROS COLUMNA */
-    .fila-filtros { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-bottom: 24px; }
-    @media (max-width: 768px) { .fila-filtros { grid-template-columns: 1fr; } }
-    .tarjeta-filtro { background: var(--blanco); border-radius: var(--radio-grande); padding: 18px; box-shadow: var(--sombra-suave); }
-    .cabecera-columna {
-      font-size: 13px; font-weight: 600; color: var(--texto-claro); text-transform: uppercase;
-      margin-bottom: 12px; padding-bottom: 8px; border-bottom: 1px solid var(--fondo);
-    }
-    .lista-opciones { display: flex; flex-direction: column; gap: 6px; max-height: 240px; overflow-y: auto; }
-    .opcion-filtro {
-      padding: 10px 12px; border-radius: 8px; border: none; background: transparent;
-      color: var(--texto-medio); font-size: 14px; text-align: left; cursor: pointer; transition: all 0.2s;
-      display: flex; align-items: center; gap: 10px;
-    }
-    .opcion-filtro:hover { background: var(--fondo); }
-    .opcion-filtro.activa { background: var(--primario-claro); color: var(--primario); font-weight: 600; }
-    .opcion-filtro .logo-filtro {
-      width: 22px; height: 22px; object-fit: contain; flex-shrink: 0;
-      background: #fff; padding: 2px; border-radius: 4px;
-    }
-
-    /* AGRUPACIÓN PRODUCTOS */
-    .agrupacion-marca {
-      font-size: 16px; font-weight: 700; color: var(--texto-oscuro); margin: 24px 0 12px;
-      padding-bottom: 8px; border-bottom: 2px solid var(--primario-claro);
-      display: flex; align-items: center; gap: 10px;
-    }
-    .logo-agrupacion {
-      width: 26px; height: 26px; object-fit: contain; flex-shrink: 0;
-      background: #fff; padding: 3px; border-radius: 5px;
-    }
-
-    .barra-busqueda { display: flex; gap: 12px; margin-bottom: 20px; }
-    .contenedor-input { flex: 1; position: relative; }
-    .icono-buscar { position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: var(--texto-claro); }
-    input, select {
-      width: 100%; padding: 14px 14px 14px 44px; border: 1px solid var(--borde);
-      border-radius: var(--radio); font-size: 15px; background: var(--blanco); transition: border-color 0.2s;
-    }
-    input:focus, select:focus { outline: none; border-color: var(--primario); box-shadow: 0 0 0 3px rgba(22,93,255,0.1); }
-    .boton-camara {
-      width: 52px; height: 52px; border-radius: var(--radio); border: none; background: var(--primario);
-      color: white; font-size: 20px; cursor: pointer; box-shadow: var(--sombra-media); transition: transform 0.2s;
-    }
-    .boton-camara:active { transform: scale(0.95); }
-
-    .tarjeta-producto {
-      background: var(--blanco); border-radius: var(--radio-grande); padding: 16px; margin-bottom: 12px;
-      box-shadow: var(--sombra-suave); transition: transform 0.2s, box-shadow 0.2s;
-    }
-    .tarjeta-producto:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(0,0,0,0.08); }
-    .contenedor-foto {
-      width: 100%; height: 180px; border-radius: 10px; overflow: hidden; background: var(--fondo);
-      margin-bottom: 14px; cursor: pointer;
-    }
-    .contenedor-foto img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.3s; }
-    .contenedor-foto:hover img { transform: scale(1.05); }
-    .fila-superior { display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; margin-bottom: 8px; }
-    .nombre-producto { font-size: 16px; font-weight: 700; color: var(--texto-oscuro); }
-    .codigo {
-      background: var(--primario-claro); color: var(--primario); font-size: 12px; font-weight: 600;
-      padding: 4px 10px; border-radius: 20px; white-space: nowrap;
-    }
-    .subtitulo { font-size: 13px; color: var(--texto-claro); margin-bottom: 8px; }
-    .aplicacion {
-      background: var(--fondo); padding: 10px 14px; border-radius: 8px;
-      font-size: 13px; color: var(--texto-medio); margin: 10px 0;
-    }
-    .fila-inferior {
-      display: flex; justify-content: space-between; align-items: center; padding-top: 12px;
-      border-top: 1px solid var(--fondo); flex-wrap: wrap; gap: 10px;
-    }
-    .info-stock { font-size: 13px; color: var(--texto-medio); }
-    .precio { font-size: 20px; font-weight: 700; color: var(--exito); }
-    .acciones { display: flex; gap: 10px; margin-top: 12px; }
-    .btn {
-      flex: 1; padding: 10px; border-radius: 10px; border: none; font-weight: 600;
-      cursor: pointer; transition: all 0.2s; font-size: 14px;
-    }
-    .btn-editar { background: var(--primario-claro); color: var(--primario); }
-    .btn-editar:hover { background: #D6E8FF; }
-    .btn-borrar { background: #FFECEC; color: var(--peligro); }
-    .btn-borrar:hover { background: #FFDCDC; }
-
-    .tarjeta-formulario {
-      background: var(--blanco); border-radius: var(--radio-grande); padding: 24px;
-      box-shadow: var(--sombra-suave); max-width: 700px; margin: 0 auto;
-    }
-    .tarjeta-formulario h2 {
-      font-size: 18px; font-weight: 700; margin-bottom: 24px; color: var(--texto-oscuro);
-      display: flex; align-items: center; gap: 8px;
-    }
-    .grupo-campo { margin-bottom: 16px; }
-    .fila-doble { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
-    @media (max-width: 520px) { .fila-doble { grid-template-columns: 1fr; } }
-    label { display: block; font-size: 13px; font-weight: 600; color: var(--texto-medio); margin-bottom: 6px; }
-    .input-con-boton { display: flex; gap: 8px; }
-    .input-con-boton input { flex: 1; }
-    .btn-primario {
-      width: 100%; padding: 14px; background: var(--primario); color: white; border: none;
-      border-radius: var(--radio); font-size: 15px; font-weight: 600; cursor: pointer;
-      margin-top: 8px; box-shadow: var(--sombra-media); transition: background 0.2s;
-    }
-    .btn-primario:hover { background: #0E42D2; }
-    .btn-secundario {
-      width: 100%; padding: 12px; background: transparent; color: var(--texto-medio);
-      border: 1px solid var(--borde); border-radius: var(--radio); font-size: 14px;
-      font-weight: 600; cursor: pointer; margin-top: 10px;
-    }
-    .preview-foto {
-      margin-top: 10px; border-radius: 10px; max-height: 200px; object-fit: cover;
-      display: none; cursor: pointer;
-    }
-
-    .navegacion {
-      position: fixed; bottom: 16px; left: 50%; transform: translateX(-50%);
-      background: var(--blanco); padding: 10px 12px; border-radius: 50px;
-      box-shadow: 0 4px 20px rgba(0,0,0,0.12); display: flex; gap: 8px; z-index: 100;
-    }
-    .boton-nav {
-      padding: 12px 24px; border-radius: 30px; border: none; background: transparent;
-      color: var(--texto-medio); font-weight: 600; font-size: 14px; cursor: pointer; transition: all 0.25s;
-    }
-    .boton-nav.activa {
-      background: var(--primario); color: white; box-shadow: 0 4px 12px rgba(22,93,255,0.3);
-    }
-
-    .modal {
-      display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.8); z-index: 9999;
-      padding: 24px; align-items: center; justify-content: center;
-    }
-    .modal.visible { display: flex; }
-    .contenedor-modal { position: relative; max-width: 95%; max-height: 90vh; }
-    .cerrar-modal {
-      position: absolute; top: -40px; right: 0; background: rgba(255,255,255,0.2);
-      border: none; color: white; width: 36px; height: 36px; border-radius: 50%; font-size: 18px; cursor: pointer;
-    }
-    .img-modal { max-width: 100%; max-height: 85vh; border-radius: 12px; }
-    .video-camara { max-width: 100%; border-radius: 12px; border: 3px solid var(--primario); }
-    .pestaña { display: none; }
-    .pestaña.activa { display: block; }
-    .mensaje-exito {
-      background: #E8FFEA; color: var(--exito); padding: 12px 16px; border-radius: 10px;
-      margin-bottom: 20px; display: flex; align-items: center; gap: 8px; font-weight: 500;
-    }
-
-    /* === DIBUJO DE LOGOS EN CSS — NO FALLAN === */
-    .logo-dibujado {
-      width: 28px; height: 28px; flex-shrink: 0;
-      display: flex; align-items: center; justify-content: center;
-      background: white; border-radius: 6px; border: 1px solid #eee;
-      font-weight: bold; font-size: 12px;
-    }
-    .logo-dibujado.filtrado { width: 22px; height: 22px; font-size: 10px; }
-    .logo-dibujado.agrupado { width: 26px; height: 26px; font-size: 11px; }
-  </style>
-</head>
-<body>
-
-  <!-- LOGIN -->
-  <div id="pantalla-login">
-    <div class="login-card">
-      <div class="login-logo">
-        <div class="login-logo-img">⚙️</div>
-        <h1>RepuestosPro</h1>
-      </div>
-      <p>Sistema de gestión de repuestos</p>
-      <form onsubmit="iniciarSesion(event)">
-        <div class="grupo-campo">
-          <label>Correo electrónico</label>
-          <input type="email" id="correo-login" placeholder="tu@email.com" required>
-        </div>
-        <div class="grupo-campo">
-          <label>Contraseña</label>
-          <input type="password" id="clave-login" placeholder="••••••••" required>
-        </div>
-        <button type="submit" class="btn-primario">Ingresar</button>
-      </form>
-    </div>
-  </div>
-
-  <!-- MODAL CÁMARA -->
-  <div id="modal-camara" class="modal">
-    <div class="contenedor-modal" style="text-align:center;">
-      <h3 style="color:white; margin-bottom:16px;">📷 Escaneando código...</h3>
-      <video id="video-camara" class="video-camara" autoplay playsinline></video>
-      <button class="btn-secundario" style="background:white; margin-top:20px;" onclick="detenerCamara()">Cancelar</button>
-    </div>
-  </div>
-
-  <!-- MODAL FOTO AMPLIADA -->
-  <div id="modal-foto" class="modal" onclick="cerrarModalFoto()">
-    <div class="contenedor-modal" onclick="event.stopPropagation()">
-      <button class="cerrar-modal" onclick="cerrarModalFoto()">✕</button>
-      <img id="img-ampliada" class="img-modal" alt="Foto ampliada">
-    </div>
-  </div>
-
-  <!-- CABECERA -->
-  <header>
-    <div class="logo-contenedor">
-      <div class="logo-icono">⚙️</div>
-      <span class="logo-texto">RepuestosPro</span>
-    </div>
-    <div class="usuario" id="nombre-usuario">👤 Usuario</div>
-  </header>
-
-  <div class="contenedor">
-
-    <!-- PESTAÑA BUSCAR -->
-    <div id="pestaña-buscar" class="pestaña activa">
-      
-      <div id="mensaje-escaneo" class="mensaje-exito" style="display:none;">
-        ✅ Repuesto encontrado y cargado automáticamente
-      </div>
-      
-      <!-- ÍNDICE DE MARCAS — LOGO + NOMBRE -->
-      <div class="indice-marcas">
-        <div class="titulo-seccion">🚗 Índice de marcas — Toca para filtrar</div>
-        <div class="grid-marcas" id="contenedor-marcas"></div>
-      </div>
-
-      <!-- BUSCADOR -->
-      <div class="barra-busqueda">
-        <div class="contenedor-input">
-          <span class="icono-buscar">🔍</span>
-          <input type="text" id="buscador" placeholder="Buscar por nombre, código, modelo..." oninput="dibujarProductos()">
-        </div>
-        <button class="boton-camara" onclick="iniciarEscaneo()">📷</button>
-      </div>
-
-      <!-- FILTROS -->
-      <div class="fila-filtros">
-        <div class="tarjeta-filtro">
-          <div class="cabecera-columna">Índice rápido</div>
-          <div class="lista-opciones" id="lista-indice">
-            <button class="opcion-filtro activa" onclick="seleccionarIndice('todos', this)">
-              <span>⚡</span> Todos los repuestos
-            </button>
-            <button class="opcion-filtro" onclick="seleccionarIndice('destacados', this)">
-              <span>⭐</span> Destacados
-            </button>
-            <button class="opcion-filtro" onclick="seleccionarIndice('stock', this)">
-              <span>📦</span> Stock alto
-            </button>
-            <button class="opcion-filtro" onclick="seleccionarIndice('nuevos', this)">
-              <span>🆕</span> Recién cargados
-            </button>
-          </div>
-        </div>
-
-        <div class="tarjeta-filtro">
-          <div class="cabecera-columna">Marca de auto</div>
-          <div class="lista-opciones" id="lista-marcas"></div>
-        </div>
-
-        <div class="tarjeta-filtro">
-          <div class="cabecera-columna">Categoría</div>
-          <div class="lista-opciones" id="lista-categorias"></div>
-        </div>
-      </div>
-
-      <!-- LISTA DE PRODUCTOS -->
-      <div id="lista-productos"></div>
-    </div>
-
-    <!-- PESTAÑA CARGAR -->
-    <div id="pestaña-cargar" class="pestaña">
-      <div class="tarjeta-formulario">
-        <h2 id="titulo-formulario">➕ Cargar nuevo repuesto</h2>
-        <form onsubmit="guardarProducto(event)">
-          <input type="hidden" id="id-edicion">
-
-          <div class="grupo-campo">
-            <label>Nombre del repuesto *</label>
-            <input type="text" id="nombre" placeholder="Ej: Filtro de aceite" required>
-          </div>
-
-          <div class="fila-doble">
-            <div class="grupo-campo">
-              <label>Marca del auto *</label>
-              <select id="marca-auto">
-                <option>Ford</option>
-                <option>Fiat</option>
-                <option>Chevrolet</option>
-                <option>Volkswagen</option>
-                <option>Renault</option>
-                <option>Peugeot</option>
-                <option>Citroën</option>
-                <option>Toyota</option>
-                <option>Hyundai</option>
-                <option>Kia</option>
-                <option>Nissan</option>
-                <option>Suzuki</option>
-                <option>Honda</option>
-                <option>Mitsubishi</option>
-                <option>Universal / Multimarca</option>
-              </select>
-            </div>
-            <div class="grupo-campo">
-              <label>Categoría *</label>
-              <select id="categoria">
-                <option>Filtros</option>
-                <option>Frenos</option>
-                <option>Lubricantes</option>
-                <option>Suspensión</option>
-                <option>Iluminación</option>
-                <option>Embrague</option>
-                <option>Refrigeración</option>
-                <option>Electricidad</option>
-                <option>Otros</option>
-              </select>
-            </div>
-          </div>
-
-          <div class="grupo-campo">
-            <label>Código de pieza / barras</label>
-            <div class="input-con-boton">
-              <input type="text" id="codigo" placeholder="Escaneá o escribí el código">
-              <button type="button" class="boton-camara" style="width:46px; height:46px;" onclick="iniciarEscaneoFormulario()">📷</button>
-            </div>
-          </div>
-
-          <div class="fila-doble">
-            <div class="grupo-campo">
-              <label>Marca fabricante</label>
-              <input type="text" id="marca-fabrica" placeholder="Ej: Mann, Fram">
-            </div>
-            <div class="grupo-campo">
-              <label>Equivalencias</label>
-              <input type="text" id="equivalencias" placeholder="Códigos compatibles">
-            </div>
-          </div>
-
-          <div class="grupo-campo">
-            <label>Modelos compatibles</label>
-            <input type="text" id="aplicaciones" placeholder="Ej: Gol, Voyage, Fox">
-          </div>
-
-          <div class="fila-doble">
-            <div class="grupo-campo">
-              <label>Precio ($) *</label>
-              <input type="number" id="precio" placeholder="0" required>
-            </div>
-            <div class="grupo-campo">
-              <label>Stock *</label>
-              <input type="number" id="stock" value="10" required>
-            </div>
-          </div>
-
-          <div class="grupo-campo">
-            <label>Ubicación</label>
-            <input type="text" id="ubicacion" placeholder="Estante A3">
-          </div>
-
-          <div class="grupo-campo">
-            <label>Foto del repuesto</label>
-            <input type="file" accept="image/*" id="foto-archivo" onchange="cargarFoto(event)">
-            <img id="vista-previa" class="preview-foto" alt="Vista previa" onclick="abrirModalFoto(this.src)">
-          </div>
-
-          <button type="submit" class="btn-primario" id="boton-guardar">💾 Guardar repuesto</button>
-          <button type="button" class="btn-secundario" id="boton-cancelar" style="display:none;" onclick="reiniciarFormulario()">Cancelar edición</button>
-        </form>
-      </div>
-    </div>
-  </div>
-
-  <!-- NAVEGACIÓN INFERIOR -->
-  <nav class="navegacion">
-    <button class="boton-nav activa" id="nav-buscar" onclick="cambiarPestaña('buscar')">🔍 Buscar</button>
-    <button class="boton-nav" id="nav-cargar" onclick="cambiarPestaña('cargar')">➕ Cargar</button>
-  </nav>
-
-  <script>
-    let productos = JSON.parse(localStorage.getItem('repuestos_pro') || '[]');
-    let fotoActual = '';
-    let filtroMarca = 'TODAS';
-    let filtroCategoria = 'TODAS';
-    let lectorCodigos = new ZXing.BrowserBarcodeReader();
-
-    // ==============================================
-    // LOGOS DIBUJADOS — NO NECESITAN IMÁGENES EXTERNAS ✅
-    // ==============================================
-    function obtenerLogoMarca(nombre, tamaño = 'normal') {
-      const estilos = {
-        normal: 'logo-dibujado',
-        filtrado: 'logo-dibujado filtrado',
-        agrupado: 'logo-dibujado agrupado'
-      };
-      const clase = estilos[tamaño] || estilos.normal;
-      
-      const logos = {
-        'TODAS': { texto: '⚡', fondo: '#E8F3FF', color: '#165DFF' },
-        'Ford': { texto: 'F', fondo: '#003478', color: 'white' },
-        'Fiat': { texto: 'F', fondo: '#E30613', color: 'white' },
-        'Chevrolet': { texto: 'C', fondo: '#0081CE', color: 'white' },
-        'Volkswagen': { texto: 'VW', fondo: '#005BBB', color: 'white' },
-        'Renault': { texto: 'R', fondo: '#FF0000', color: 'white' },
-        'Peugeot': { texto: 'P', fondo: '#000000', color: 'white' },
-        'Citroën': { texto: 'C', fondo: '#F39200', color: 'white' },
-        'Toyota': { texto: 'T', fondo: '#EB0A1E', color: 'white' },
-        'Hyundai': { texto: 'H', fondo: '#002C5F', color: 'white' },
-        'Kia': { texto: 'K', fondo: '#FF5C00', color: 'white' },
-        'Nissan': { texto: 'N', fondo: '#C3002F', color: 'white' },
-        'Suzuki': { texto: 'S', fondo: '#E30613', color: 'white' },
-        'Honda': { texto: 'H', fondo: '#E40521', color: 'white' },
-        'Mitsubishi': { texto: 'M', fondo: '#E60012', color: 'white' },
-        'Universal / Multimarca': { texto: '🌐', fondo: '#F0F0F0', color: '#333' }
-      };
-      
-      const l = logos[nombre] || { texto: nombre.charAt(0), fondo: '#DDD', color: '#333' };
-      
-      return `<span class="${clase}" style="background:${l.fondo}; color:${l.color}; border:none;">${l.texto}</span>`;
-    }
-
-    const LISTA_MARCAS = ['TODAS','Ford','Fiat','Chevrolet','Volkswagen','Renault','Peugeot','Citroën','Toyota','Hyundai','Kia','Nissan','Suzuki','Honda','Mitsubishi','Universal / Multimarca'];
-    const LISTA_CATEGORIAS = ['TODAS', 'Filtros', 'Frenos', 'Lubricantes', 'Suspensión', 'Iluminación', 'Embrague', 'Refrigeración', 'Electricidad', 'Otros'];
-
-    // LOGIN
-    function iniciarSesion(e) {
-      e.preventDefault();
-      const correo = document.getElementById('correo-login').value;
-      localStorage.setItem('sesion_usuario', correo);
-      document.getElementById('pantalla-login').style.display = 'none';
-      document.getElementById('nombre-usuario').textContent = `👤 ${correo.split('@')[0]}`;
-      inicializar();
-    }
-
-    function verificarSesion() {
-      const usuario = localStorage.getItem('sesion_usuario');
-      if (usuario) {
-        document.getElementById('pantalla-login').style.display = 'none';
-        document.getElementById('nombre-usuario').textContent = `👤 ${usuario.split('@')[0]}`;
-        inicializar();
-      }
-    }
-
-    // MODAL FOTO
-    function abrirModalFoto(src) {
-      if (!src) return;
-      document.getElementById('img-ampliada').src = src;
-      document.getElementById('modal-foto').classList.add('visible');
-    }
-    function cerrarModalFoto() {
-      document.getElementById('modal-foto').classList.remove('visible');
-      document.getElementById('img-ampliada').src = '';
-    }
-
-    // ESCÁNER
-    function iniciarEscaneo() {
-      document.getElementById('modal-camara').classList.add('visible');
-      lectorCodigos.decodeFromVideoDevice(null, 'video-camara', (resultado) => {
-        if (resultado) {
-          const codigo = resultado.text.trim();
-          detenerCamara();
-          const encontrado = productos.find(p => 
-            p.codigo === codigo || (p.equivalencias && p.equivalencias.includes(codigo))
-          );
-          if (encontrado) {
-            mostrarMensajeExito();
-            document.getElementById('buscador').value = codigo;
-            dibujarProductos();
-            setTimeout(() => editarProducto(encontrado.id), 600);
-          } else {
-            document.getElementById('codigo').value = codigo;
-            cambiarPestaña('cargar');
-            alert(`📷 Código leído: ${codigo}`);
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: Text("Escaneando Código de Barras...")),
+      body: MobileScanner(
+        onDetect: (capture) {
+          final List<Barcode> barcodes = capture.barcodes;
+          for (final barcode in barcodes) {
+            if (barcode.rawValue != null) {
+              _manejarCodigoDetectado(barcode.rawValue!);
+              break; 
+            }
           }
-        }
-      }).catch(() => { alert('❌ No se pudo acceder a la cámara.'); detenerCamara(); });
+        },
+      ),
+    );
+  }
+}
+
+// ==========================================
+// 3. PANTALLA DE FORMULARIO / ALTA DE PRODUCTO
+// ==========================================
+class ProductFormScreen extends StatefulWidget {
+  @override
+  _ProductFormScreenState createState() => _ProductFormScreenState();
+}
+
+class _ProductFormScreenState extends State<ProductFormScreen> {
+  final _nombreController = TextEditingController();
+  final _codigoController = TextEditingController();
+  final _descripcionController = TextEditingController();
+  final _precioController = TextEditingController();
+  final _stockController = TextEditingController();
+  final _stockMinimoController = TextEditingController();
+  
+  String categoriaSeleccionada = 'Repuestos / Ferretería';
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    // Si viene un código desde el escáner, lo autocompleta al instante
+    final String? codigoEscaneado = ModalRoute.of(context)?.settings.arguments as String?;
+    if (codigoEscaneado != null) {
+      _codigoController.text = codigoEscaneado;
     }
+  }
 
-    function iniciarEscaneoFormulario() {
-      document.getElementById('modal-camara').classList.add('visible');
-      lectorCodigos.decodeFromVideoDevice(null, 'video-camara', (res) => {
-        if (res) { document.getElementById('codigo').value = res.text.trim(); detenerCamara(); }
-      });
-    }
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: Text("Alta / Edición de Producto")),
+      body: ListView(
+        padding: EdgeInsets.all(16),
+        children: [
+          // Sección de Foto del Producto
+          Center(
+            child: Stack(
+              children: [
+                Container(
+                  width: 120,
+                  height: 120,
+                  decoration: BoxDecoration(
+                    color: Colors.grey.shade200,
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(color: Colors.grey.shade400),
+                  ),
+                  child: Icon(Icons.camera_alt, size: 50, color: Colors.grey),
+                ),
+                Positioned(
+                  bottom: 0,
+                  right: 0,
+                  child: CircleAvatar(
+                    backgroundColor: Colors.indigo,
+                    child: Icon(Icons.add, color: Colors.white),
+                  ),
+                )
+              ],
+            ),
+          ),
+          SizedBox(height: 16),
+          
+          TextField(
+            controller: _codigoController,
+            decoration: InputDecoration(labelText: "Código de Barras (Escaneado)", border: OutlineInputBorder()),
+          ),
+          SizedBox(height: 12),
 
-    function detenerCamara() { try { lectorCodigos.reset(); } catch(e) {} document.getElementById('modal-camara').classList.remove('visible'); }
-    function mostrarMensajeExito() {
-      const m = document.getElementById('mensaje-escaneo'); m.style.display = 'flex';
-      setTimeout(() => m.style.display = 'none', 4000);
-    }
+          TextField(
+            controller: _nombreController,
+            decoration: InputDecoration(labelText: "Nombre del Producto (ej: Pastilla de freno / Remera)", border: OutlineInputBorder()),
+          ),
+          SizedBox(height: 12),
 
-    // ==================================================
-    // DIBUJAR TODO CON LOGO AL LADO DE CADA MARCA ✅
-    // ==================================================
-    function dibujarFiltros() {
-      // ÍNDICE SUPERIOR
-      const contenedor = document.getElementById('contenedor-marcas');
-      contenedor.innerHTML = '';
-      LISTA_MARCAS.forEach(marca => {
-        const etiqueta = document.createElement('button');
-        etiqueta.className = `etiqueta-marca ${filtroMarca === marca ? 'activa' : ''}`;
-        etiqueta.innerHTML = `
-          ${obtenerLogoMarca(marca, 'normal')}
-          <span>${marca === 'TODAS' ? '⚡ Todas' : marca}</span>
-        `;
-        etiqueta.onclick = () => { filtroMarca = marca; dibujarFiltros(); dibujarProductos(); };
-        contenedor.appendChild(etiqueta);
-      });
+          DropdownButtonFormField<String>(
+            value: categoriaSeleccionada,
+            decoration: InputDecoration(labelText: "Categoría del Negocio", border: OutlineInputBorder()),
+            items: ['Repuestos / Ferretería', 'Indumentaria / Ropa', 'Almacén / Mercadería', 'Otro']
+                .map((cat) => DropdownMenuItem(value: cat, child: Text(cat)))
+                .toList(),
+            onChanged: (val) {
+              setState(() { categoriaSeleccionada = val!; });
+            },
+          ),
+          SizedBox(height: 12),
 
-      // COLUMNA MARCAS
-      const colMarcas = document.getElementById('lista-marcas');
-      colMarcas.innerHTML = '';
-      LISTA_MARCAS.forEach(marca => {
-        const opcion = document.createElement('button');
-        opcion.className = `opcion-filtro ${filtroMarca === marca ? 'activa' : ''}`;
-        opcion.innerHTML = `
-          ${obtenerLogoMarca(marca, 'filtrado')}
-          <span>${marca}</span>
-        `;
-        opcion.onclick = () => { filtroMarca = marca; dibujarFiltros(); dibujarProductos(); };
-        colMarcas.appendChild(opcion);
-      });
+          TextField(
+            controller: _descripcionController,
+            maxLines: 3,
+            decoration: InputDecoration(labelText: "Descripción detallada (Materiales, ubicación, talle, etc.)", border: OutlineInputBorder()),
+          ),
+          SizedBox(height: 12),
 
-      // CATEGORÍAS
-      const colCats = document.getElementById('lista-categorias');
-      colCats.innerHTML = '';
-      const iconosCat = {'TODAS':'⚡','Filtros':'🔄','Frenos':'🛑','Lubricantes':'🛢️','Suspensión':'🔩','Iluminación':'💡','Embrague':'⚙️','Refrigeración':'❄️','Electricidad':'⚡','Otros':'📦'};
-      LISTA_CATEGORIAS.forEach(cat => {
-        const opcion = document.createElement('button');
-        opcion.className = `opcion-filtro ${filtroCategoria === cat ? 'activa' : ''}`;
-        opcion.innerHTML = `<span>${iconosCat[cat]}</span> ${cat}`;
-        opcion.onclick = () => { filtroCategoria = cat; dibujarFiltros(); dibujarProductos(); };
-        colCats.appendChild(opcion);
-      });
-    }
+          Row(
+            children: [
+              Expanded(
+                child: TextField(
+                  controller: _precioController,
+                  keyboardType: TextInputType.number,
+                  decoration: InputDecoration(labelText: "Precio de Venta", border: OutlineInputBorder()),
+                ),
+              ),
+              SizedBox(width: 12),
+              Expanded(
+                child: TextField(
+                  controller: _stockController,
+                  keyboardType: TextInputType.number,
+                  decoration: InputDecoration(labelText: "Stock Inicial", border: OutlineInputBorder()),
+                ),
+              ),
+            ],
+          ),
+          SizedBox(height: 12),
 
-    function seleccionarIndice(v, el) {
-      document.querySelectorAll('#lista-indice .opcion-filtro').forEach(b => b.classList.remove('activa'));
-      el.classList.add('activa'); dibujarProductos();
-    }
+          TextField(
+            controller: _stockMinimoController,
+            keyboardType: TextInputType.number,
+            decoration: InputDecoration(
+              labelText: "Stock Mínimo (Alerta de Reposición)", 
+              hintText: "Ej: Si llega a 3 unidades, avisa",
+              border: OutlineInputBorder(),
+            ),
+          ),
+          SizedBox(height: 24),
 
-    // FOTO PREVIA
-    function cargarFoto(e) {
-      const arch = e.target.files[0]; if (!arch) return;
-      const r = new FileReader(); r.onload = evt => {
-        fotoActual = evt.target.result;
-        const img = document.getElementById('vista-previa'); img.src = fotoActual; img.style.display = 'block';
-      }; r.readAsDataURL(arch);
-    }
-
-    // GUARDAR / EDITAR
-    function guardarProducto(e) {
-      e.preventDefault();
-      const idEd = document.getElementById('id-edicion').value;
-      const prod = {
-        id: idEd ? Number(idEd) : Date.now(),
-        nombre: document.getElementById('nombre').value,
-        marcaAuto: document.getElementById('marca-auto').value,
-        categoria: document.getElementById('categoria').value,
-        codigo: document.getElementById('codigo').value || 'S/C',
-        marcaFabrica: document.getElementById('marca-fabrica').value || 'Genérico',
-        equivalencias: document.getElementById('equivalencias').value || '',
-        aplicaciones: document.getElementById('aplicaciones').value || 'Varias',
-        precio: parseFloat(document.getElementById('precio').value) || 0,
-        stock: parseInt(document.getElementById('stock').value) || 0,
-        ubicacion: document.getElementById('ubicacion').value || 'Sin asignar',
-        foto: fotoActual
-      };
-      if (idEd) {
-        const i = productos.findIndex(p => p.id == idEd); if (i !== -1) productos[i] = prod;
-      } else { productos.unshift(prod); }
-      localStorage.setItem('repuestos_pro', JSON.stringify(productos));
-      reiniciarFormulario(); cambiarPestaña('buscar'); dibujarProductos();
-    }
-
-    function editarProducto(id) {
-      const p = productos.find(x => x.id === id); if (!p) return;
-      document.getElementById('id-edicion').value = p.id;
-      document.getElementById('nombre').value = p.nombre;
-      document.getElementById('marca-auto').value = p.marcaAuto;
-      document.getElementById('categoria').value = p.categoria;
-      document.getElementById('codigo').value = p.codigo;
-      document.getElementById('marca-fabrica').value = p.marcaFabrica;
-      document.getElementById('equivalencias').value = p.equivalencias;
-      document.getElementById('aplicaciones').value = p.aplicaciones;
-      document.getElementById('precio').value = p.precio;
-      document.getElementById('stock').value = p.stock;
-      document.getElementById('ubicacion').value = p.ubicacion;
-      fotoActual = p.foto || '';
-      const v = document.getElementById('vista-previa');
-      if (fotoActual) { v.src = fotoActual; v.style.display = 'block'; } else { v.style.display = 'none'; }
-      document.getElementById('titulo-formulario').innerHTML = '✏️ Editar repuesto';
-      document.getElementById('boton-guardar').textContent = '💾 Actualizar repuesto';
-      document.getElementById('boton-cancelar').style.display = 'block';
-      cambiarPestaña('cargar');
-    }
-
-    function eliminarProducto(id) {
-      if (confirm('¿Eliminar este repuesto?')) {
-        productos = productos.filter(p => p.id !== id);
-        localStorage.setItem('repuestos_pro', JSON.stringify(productos));
-        dibujarProductos();
-      }
-    }
-
-    function reiniciarFormulario() {
-      document.querySelector('form').reset();
-      document.getElementById('id-edicion').value = '';
-      fotoActual = '';
-      document.getElementById('vista-previa').style.display = 'none';
-      document.getElementById('titulo-formulario').innerHTML = '➕ Cargar nuevo repuesto';
-      document.getElementById('boton-guardar').textContent = '💾 Guardar repuesto';
-      document.getElementById('boton-cancelar').style.display = 'none';
-    }
-
-    // LISTA PRODUCTOS CON LOGO
-    function dibujarProductos() {
-      const cont = document.getElementById('lista-productos');
-      cont.innerHTML = '';
-      const busq = document.getElementById('buscador').value.toLowerCase().trim();
-      const filtrados = productos.filter(p => {
-        const okMarca = filtroMarca === 'TODAS' || p.marcaAuto === filtroMarca;
-        const okCat = filtroCategoria === 'TODAS' || p.categoria === filtroCategoria;
-        const okBusq = !busq || p.nombre.toLowerCase().includes(busq) || p.codigo.toLowerCase().includes(busq) || (p.aplicaciones && p.aplicaciones.toLowerCase().includes(busq));
-        return okMarca && okCat && okBusq;
-      });
-      if (!filtrados.length) {
-        cont.innerHTML = '<p style="text-align:center; padding:40px; color:#86909C;">No hay repuestos que mostrar</p>';
-        return;
-      }
-      const agrupados = {};
-      filtrados.forEach(p => {
-        if (!agrupados[p.marcaAuto]) agrupados[p.marcaAuto] = [];
-        agrupados[p.marcaAuto].push(p);
-      });
-      for (const [marca, items] of Object.entries(agrupados)) {
-        cont.innerHTML += `<h3 class="agrupacion-marca">
-          ${obtenerLogoMarca(marca, 'agrupado')}
-          ${marca} (${items.length})
-        </h3>`;
-        items.forEach(p => {
-          cont.innerHTML += `
-            <div class="tarjeta-producto">
-              ${p.foto ? `<div class="contenedor-foto" onclick="abrirModalFoto('${p.foto}')"><img src="${p.foto}" alt="${p.nombre}"></div>` : ''}
-              <div class="fila-superior">
-                <div class="nombre-producto">${p.nombre}</div>
-                <span class="codigo">${p.codigo}</span>
-              </div>
-              <p class="subtitulo">${p.marcaFabrica} • ${p.categoria}</p>
-              ${p.equivalencias ? `<p class="subtitulo">🔄 Equivalencias: ${p.equivalencias}</p>` : ''}
-              <div class="aplicacion">🚗 Modelos: ${p.aplicaciones}</div>
-              <div class="fila-inferior">
-                <div class="info-stock">📦 Stock: ${p.stock} u. &nbsp;|&nbsp; 📍 ${p.ubicacion}</div>
-                <div class="precio">$${p.precio.toLocaleString('es-AR')}</div>
-              </div>
-              <div class="acciones">
-                <button class="btn btn-editar" onclick="editarProducto(${p.id})">✏️ Editar</button>
-                <button class="btn btn-borrar" onclick="eliminarProducto(${p.id})">🗑️ Eliminar</button>
-              </div>
-            </div>
-          `;
-        });
-      }
-    }
-
-    // NAVEGACIÓN
-    function cambiarPestaña(nombre) {
-      document.querySelectorAll('.pestaña').forEach(p => p.classList.remove('activa'));
-      document.querySelectorAll('.boton-nav').forEach(b => b.classList.remove('activa'));
-      if (nombre === 'buscar') {
-        document.getElementById('pestaña-buscar').classList.add('activa');
-        document.getElementById('nav-buscar').classList.add('activa');
-      } else {
-        document.getElementById('pestaña-cargar').classList.add('activa');
-        document.getElementById('nav-cargar').classList.add('activa');
-      }
-    }
-
-    function inicializar() { dibujarFiltros(); dibujarProductos(); }
-    verificarSesion();
-  </script>
-</body>
-</html>
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.green,
+              foregroundColor: Colors.white,
+              padding: EdgeInsets.symmetric(vertical: 16),
+            ),
+            child: Text("GUARDAR PRODUCTO AL INSTANTE", style: TextStyle(fontSize: 16)),
+            onPressed: () {
+              // Lógica para guardar en Base de datos y volver al inicio
+              Navigator.pop(context);
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(content: Text("🚀 Producto guardado y sincronizado con éxito")),
+              );
+            },
+          ),
+        ],
+      ),
+    );
+  }
+}
