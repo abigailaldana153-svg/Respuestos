@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>RepuestosPro - Control de Stock Ultra Moderno</title>
+  <title>RepuestosPro - Filtro por Marcas y Categorías</title>
   <script src="https://unpkg.com/@zxing/library@latest"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -17,7 +17,6 @@
       
       --accent-gradient: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
       --accent-glow: rgba(59, 130, 246, 0.35);
-      --accent-secondary: #06b6d4;
       
       --text-main: #f8fafc;
       --text-muted: #94a3b8;
@@ -138,9 +137,10 @@
       margin: 0 auto;
     }
 
+    /* Buscador */
     .search-wrapper {
       position: relative;
-      margin-bottom: 20px;
+      margin-bottom: 16px;
       display: flex;
       gap: 10px;
     }
@@ -179,6 +179,90 @@
       box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2), inset 0 2px 4px rgba(0,0,0,0.2);
     }
 
+    /* FILTROS POR MARCA Y CATEGORÍA */
+    .filter-section {
+      margin-bottom: 14px;
+    }
+
+    .filter-title {
+      font-size: 0.75rem;
+      font-weight: 700;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 6px;
+    }
+
+    .chips-row {
+      display: flex;
+      gap: 8px;
+      overflow-x: auto;
+      padding-bottom: 6px;
+      scrollbar-width: thin;
+    }
+
+    .chips-row::-webkit-scrollbar {
+      height: 4px;
+    }
+
+    .chips-row::-webkit-scrollbar-thumb {
+      background: rgba(255,255,255,0.2);
+      border-radius: 4px;
+    }
+
+    .chip-btn {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid var(--card-border);
+      color: var(--text-muted);
+      font-size: 0.8rem;
+      font-weight: 600;
+      padding: 6px 12px;
+      border-radius: 18px;
+      white-space: nowrap;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .chip-btn.active-brand {
+      background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+      border-color: transparent;
+      color: #fff;
+      box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+    }
+
+    .chip-btn.active-cat {
+      background: var(--accent-gradient);
+      border-color: transparent;
+      color: #fff;
+      box-shadow: 0 4px 12px var(--accent-glow);
+    }
+
+    /* Encabezado Agrupado */
+    .brand-group-header {
+      font-size: 1.1rem;
+      font-weight: 800;
+      color: #34d399;
+      margin: 22px 0 10px 0;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      border-bottom: 2px solid rgba(16, 185, 129, 0.3);
+      padding-bottom: 4px;
+    }
+
+    .category-group-subheading {
+      font-size: 0.95rem;
+      font-weight: 700;
+      color: #60a5fa;
+      margin: 14px 0 10px 10px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
     .btn-icon {
       width: 48px;
       height: 48px;
@@ -193,12 +277,6 @@
       cursor: pointer;
       transition: all 0.2s ease;
       flex-shrink: 0;
-    }
-
-    .btn-icon:active {
-      transform: scale(0.95);
-      background: rgba(59, 130, 246, 0.15);
-      border-color: #3b82f6;
     }
 
     .btn-primary {
@@ -295,6 +373,7 @@
       background: rgba(15, 23, 42, 0.9);
     }
 
+    /* TARJETA DE PRODUCTO */
     .product-card {
       background: var(--card-bg);
       backdrop-filter: blur(16px);
@@ -302,7 +381,7 @@
       border: 1px solid var(--card-border);
       border-radius: var(--radius-lg);
       padding: 16px;
-      margin-bottom: 16px;
+      margin-bottom: 14px;
       box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
       position: relative;
       overflow: hidden;
@@ -311,10 +390,10 @@
     .product-img-wrapper {
       position: relative;
       width: 100%;
-      height: 200px;
+      height: 190px;
       border-radius: var(--radius-md);
       overflow: hidden;
-      margin-bottom: 14px;
+      margin-bottom: 12px;
       background: #0f172a;
       cursor: pointer;
     }
@@ -361,11 +440,11 @@
       justify-content: space-between;
       align-items: flex-start;
       gap: 10px;
-      margin-bottom: 10px;
+      margin-bottom: 8px;
     }
 
     .product-title {
-      font-size: 1.1rem;
+      font-size: 1.05rem;
       font-weight: 800;
       color: var(--text-main);
       line-height: 1.3;
@@ -394,17 +473,17 @@
       border: 1px solid rgba(255, 255, 255, 0.05);
       border-left: 3px solid #3b82f6;
       border-radius: var(--radius-sm);
-      padding: 10px 12px;
-      margin: 10px 0;
-      font-size: 0.88rem;
+      padding: 8px 10px;
+      margin: 8px 0;
+      font-size: 0.85rem;
     }
 
     .compat-title {
-      font-size: 0.72rem;
+      font-size: 0.7rem;
       color: var(--text-muted);
       font-weight: 700;
       text-transform: uppercase;
-      margin-bottom: 3px;
+      margin-bottom: 2px;
     }
 
     .compat-value {
@@ -416,10 +495,10 @@
       background: var(--badge-eq-bg);
       border: 1px solid var(--badge-eq-border);
       color: var(--badge-eq-text);
-      font-size: 0.8rem;
-      padding: 6px 12px;
+      font-size: 0.78rem;
+      padding: 5px 10px;
       border-radius: 8px;
-      margin-top: 8px;
+      margin-top: 6px;
       display: inline-block;
       font-weight: 600;
     }
@@ -428,8 +507,8 @@
       display: flex;
       justify-content: space-between;
       align-items: flex-end;
-      margin-top: 14px;
-      padding-top: 12px;
+      margin-top: 12px;
+      padding-top: 10px;
       border-top: 1px solid rgba(255, 255, 255, 0.06);
     }
 
@@ -449,7 +528,7 @@
     }
 
     .price-value {
-      font-size: 1.25rem;
+      font-size: 1.2rem;
       font-weight: 800;
       background: linear-gradient(135deg, #34d399 0%, #10b981 100%);
       -webkit-background-clip: text;
@@ -459,8 +538,8 @@
     .card-actions {
       display: flex;
       gap: 8px;
-      margin-top: 12px;
-      padding-top: 10px;
+      margin-top: 10px;
+      padding-top: 8px;
       border-top: 1px dashed rgba(255, 255, 255, 0.08);
     }
 
@@ -480,7 +559,7 @@
       gap: 6px;
     }
 
-    /* Modal Visor de Imagen Pantalla Completa + Datos */
+    /* Modal Visor */
     #image-view-modal {
       display: none;
       position: fixed;
@@ -615,12 +694,12 @@
 </head>
 <body>
 
-  <!-- Modal de Login / Registro -->
+  <!-- Modal Login -->
   <div id="login-screen">
     <div class="login-card">
       <div style="font-size: 2.5rem; margin-bottom: 8px;">⚙️</div>
       <div class="login-title">RepuestosPro</div>
-      <div class="login-subtitle">Ingresá tu correo y contraseña para acceder al sistema de stock</div>
+      <div class="login-subtitle">Ingresá tu correo y contraseña para acceder al sistema</div>
       
       <form onsubmit="handleLogin(event)">
         <div class="form-group">
@@ -648,15 +727,31 @@
     
     <!-- Tab Buscar -->
     <div id="tab-search" class="tab-content active">
+      
+      <!-- Buscador -->
       <div class="search-wrapper">
         <div class="search-input-group">
           <span class="search-icon">🔍</span>
-          <input type="text" id="search-input" placeholder="Buscar equivalencia (ej: W712), auto o código..." oninput="filterProducts()">
+          <input type="text" id="search-input" placeholder="Buje, soporte, modelo de auto..." oninput="filterProducts()">
         </div>
-        <button class="btn-icon" onclick="openScanner('search')" title="Escanear código de barras">📷</button>
+        <button class="btn-icon" onclick="openScanner('search')" title="Escanear código">📷</button>
       </div>
 
+      <!-- FILTRO POR MARCAS DE AUTO -->
+      <div class="filter-section">
+        <div class="filter-title">🚗 Marca de Auto / Vehículo:</div>
+        <div class="chips-row" id="brand-chips"></div>
+      </div>
+
+      <!-- FILTRO POR CATEGORÍA -->
+      <div class="filter-section">
+        <div class="filter-title">📂 Tipo / Categoría:</div>
+        <div class="chips-row" id="category-chips"></div>
+      </div>
+
+      <!-- Lista de Repuestos -->
       <div id="product-list"></div>
+
     </div>
 
     <!-- Tab Cargar / Editar -->
@@ -668,72 +763,80 @@
           <input type="hidden" id="p-editing-id" value="">
 
           <div class="form-group">
-            <label for="p-name">Nombre del Producto / Repuesto *</label>
-            <input type="text" id="p-name" placeholder="Ej: Agua Destilada 5L / Batería 12V 65Ah" required>
+            <label for="p-name">Nombre del Repuesto / Pieza *</label>
+            <input type="text" id="p-name" placeholder="Ej: Buje de Parrilla / Soporte Motor Delantero / Foco H4" required>
           </div>
 
           <div class="form-row">
             <div class="form-group">
-              <label for="p-brand">Marca</label>
-              <input type="text" id="p-brand" placeholder="Ej: Moura / YPF / Osram">
+              <label for="p-auto-brand">Marca del Auto *</label>
+              <select id="p-auto-brand">
+                <option value="Universal / Multimarca">Universal / Multimarca</option>
+                <option value="Ford">Ford</option>
+                <option value="Fiat">Fiat</option>
+                <option value="Chevrolet">Chevrolet</option>
+                <option value="Volkswagen">Volkswagen</option>
+                <option value="Renault">Renault</option>
+                <option value="Peugeot">Peugeot</option>
+                <option value="Citroën">Citroën</option>
+                <option value="Toyota">Toyota</option>
+                <option value="Honda">Honda</option>
+                <option value="Nissan">Nissan</option>
+                <option value="Otras Marcas">Otras Marcas</option>
+              </select>
             </div>
+            
             <div class="form-group">
               <label for="p-cat">Categoría *</label>
               <select id="p-cat">
+                <option value="Bujes / Tacos / Gomitas">Bujes / Tacos / Gomitas</option>
+                <option value="Soportes de Motor">Soportes de Motor</option>
+                <option value="Focadura / Iluminación">Focadura / Iluminación</option>
+                <option value="Aceites / Lubricantes">Aceites / Lubricantes</option>
                 <option value="Filtros">Filtros</option>
-                <option value="Lubricantes">Lubricantes</option>
-                <option value="Baterías">Baterías</option>
-                <option value="Fluidos/Químicos">Fluidos / Químicos (Agua, etc.)</option>
-                <option value="Electricidad/Iluminación">Electricidad / Iluminación</option>
+                <option value="Fluidos / Químicos">Fluidos / Químicos (Agua, etc.)</option>
                 <option value="Frenos">Frenos</option>
-                <option value="Suspensión">Suspensión</option>
-                <option value="Motor/Distribución">Motor/Distribución</option>
+                <option value="Baterías">Baterías</option>
+                <option value="Suspensión / Dirección">Suspensión / Dirección</option>
+                <option value="Motor / Correas">Motor / Correas</option>
                 <option value="Otros">Otros</option>
               </select>
             </div>
           </div>
 
           <div class="form-group">
-            <label for="p-apps">¿Para qué autos / modelos sirve?</label>
-            <input list="marcas-autos" id="p-apps" placeholder="Tocá para elegir opción o escribí el modelo">
-            <datalist id="marcas-autos">
-              <option value="Universal / Multimarca">
-              <option value="Fiat">
-              <option value="Ford">
-              <option value="Chevrolet">
-              <option value="Volkswagen">
-              <option value="Renault">
-              <option value="Peugeot">
-              <option value="Citroën">
-              <option value="Toyota">
-              <option value="Honda">
-              <option value="Nissan">
-            </datalist>
+            <label for="p-brand">Marca del Repuesto (Fabricante)</label>
+            <input type="text" id="p-brand" placeholder="Ej: Sampel / Osram / Castrol / Viamonte">
+          </div>
+
+          <div class="form-group">
+            <label for="p-apps">¿Para qué modelos sirve exactamente?</label>
+            <input type="text" id="p-apps" placeholder="Ej: Ford F100 / Perkins 6-305, Escort, Focus 1.6">
           </div>
 
           <div class="form-group">
             <label for="p-eq">Equivalencias / Códigos Cruzados</label>
-            <input type="text" id="p-eq" placeholder="Ej: Mann W712, Fram PH5796, Tecneco OL200">
+            <input type="text" id="p-eq" placeholder="Ej: Mann W712, Fram PH5796">
           </div>
 
           <div class="form-row">
             <div class="form-group">
               <label for="p-code">Código de Pieza / Barras</label>
               <div style="display: flex; gap: 6px;">
-                <input type="text" id="p-code" placeholder="Ej: 12X65 / H4">
+                <input type="text" id="p-code" placeholder="Ej: O50D104">
                 <button type="button" class="btn-icon" style="width:42px; height:42px; font-size:1rem;" onclick="openScanner('add')">📷</button>
               </div>
             </div>
             <div class="form-group">
               <label for="p-location">Ubicación Estante</label>
-              <input type="text" id="p-location" placeholder="Piso Sector A">
+              <input type="text" id="p-location" placeholder="Estante A2">
             </div>
           </div>
 
           <div class="form-row">
             <div class="form-group">
               <label for="p-price">Precio ($) *</label>
-              <input type="number" id="p-price" placeholder="8500" step="0.01" required>
+              <input type="number" id="p-price" placeholder="7000" step="0.01" required>
             </div>
             <div class="form-group">
               <label for="p-stock">Stock Unidades *</label>
@@ -745,15 +848,15 @@
             <label>Foto del Producto</label>
             <div style="display: flex; gap: 8px;">
               <label for="camera-input" class="btn-outline" style="flex: 1;">
-                📷 / 🖼️ Elegir Foto (Galería o Cámara)
+                📷 / 🖼️ Elegir Foto
               </label>
               <button type="button" class="btn-outline" style="width: auto; padding: 0 14px;" onclick="promptImageUrl()">
                 🌐 Link
               </button>
             </div>
 
-            <input type="file" id="camera-input" accept="image/jpeg, image/png, image/webp, image/*" style="display: none;" onchange="handlePhotoUpload(event)">
-            <img id="photo-preview" class="photo-preview" alt="Foto subida">
+            <input type="file" id="camera-input" accept="image/*" style="display: none;" onchange="handlePhotoUpload(event)">
+            <img id="photo-preview" class="photo-preview" alt="Vista previa">
           </div>
 
           <button type="submit" id="btn-submit-form" class="btn-primary" style="width: 100%; margin-top: 12px;">💾 Guardar Repuesto</button>
@@ -764,11 +867,11 @@
 
   </div>
 
-  <!-- Modal Emergente para la Foto Grande y Datos -->
+  <!-- Modal Visor Foto Grande -->
   <div id="image-view-modal">
     <div class="image-modal-wrapper">
       <button class="close-modal-btn" onclick="closeImageModal()">✕</button>
-      <img id="modal-img-src" class="image-modal-img" src="" alt="Foto en grande">
+      <img id="modal-img-src" class="image-modal-img" src="" alt="Foto amplia">
       <div id="modal-img-details" class="image-modal-body"></div>
     </div>
   </div>
@@ -792,6 +895,26 @@
     let codeReader = null;
     let currentScanTarget = 'search';
     let currentPhotoBase64 = '';
+    
+    let selectedBrandFilter = 'TODAS';
+    let selectedCategoryFilter = 'TODAS';
+
+    const BRANDS_LIST = ["TODAS", "Ford", "Fiat", "Chevrolet", "Volkswagen", "Renault", "Peugeot", "Citroën", "Toyota", "Universal / Multimarca"];
+
+    const CATEGORIES_LIST = [
+      "TODAS",
+      "Bujes / Tacos / Gomitas",
+      "Soportes de Motor",
+      "Focadura / Iluminación",
+      "Aceites / Lubricantes",
+      "Filtros",
+      "Fluidos / Químicos",
+      "Frenos",
+      "Baterías",
+      "Suspensión / Dirección",
+      "Motor / Correas",
+      "Otros"
+    ];
 
     // Control de Sesión
     function checkAuth() {
@@ -811,16 +934,14 @@
 
       if (!email || !pass) return;
 
-      // Si el usuario ya existe en este dispositivo, verifica su clave
       if (users[email]) {
         if (users[email] === pass) {
           localStorage.setItem('autopartes_session', email);
           checkAuth();
         } else {
-          alert('⚠️ Contraseña incorrecta para este correo.');
+          alert('⚠️ Contraseña incorrecta.');
         }
       } else {
-        // Registro automático de usuario nuevo
         users[email] = pass;
         localStorage.setItem('autopartes_users', JSON.stringify(users));
         localStorage.setItem('autopartes_session', email);
@@ -832,6 +953,38 @@
     function logout() {
       localStorage.removeItem('autopartes_session');
       checkAuth();
+    }
+
+    function renderFilterChips() {
+      // Marcas
+      const bContainer = document.getElementById('brand-chips');
+      bContainer.innerHTML = '';
+      BRANDS_LIST.forEach(b => {
+        const btn = document.createElement('button');
+        btn.className = `chip-btn ${selectedBrandFilter === b ? 'active-brand' : ''}`;
+        btn.innerHTML = `🚗 ${b}`;
+        btn.onclick = () => {
+          selectedBrandFilter = b;
+          renderFilterChips();
+          filterProducts();
+        };
+        bContainer.appendChild(btn);
+      });
+
+      // Categorías
+      const cContainer = document.getElementById('category-chips');
+      cContainer.innerHTML = '';
+      CATEGORIES_LIST.forEach(cat => {
+        const btn = document.createElement('button');
+        btn.className = `chip-btn ${selectedCategoryFilter === cat ? 'active-cat' : ''}`;
+        btn.innerHTML = `📂 ${cat}`;
+        btn.onclick = () => {
+          selectedCategoryFilter = cat;
+          renderFilterChips();
+          filterProducts();
+        };
+        cContainer.appendChild(btn);
+      });
     }
 
     function handlePhotoUpload(event) {
@@ -849,7 +1002,7 @@
     }
 
     function promptImageUrl() {
-      const url = prompt('Pegá la dirección (URL) de la imagen de Internet:');
+      const url = prompt('Pegá la dirección de la foto de Internet:');
       if (url) {
         currentPhotoBase64 = url;
         const imgPreview = document.getElementById('photo-preview');
@@ -862,13 +1015,16 @@
       e.preventDefault();
       const editingId = document.getElementById('p-editing-id').value;
 
+      const autoBrand = document.getElementById('p-auto-brand').value;
+
       if (editingId) {
         const index = products.findIndex(p => p.id == editingId);
         if (index !== -1) {
           products[index] = {
             id: Number(editingId),
             name: document.getElementById('p-name').value,
-            brand: document.getElementById('p-brand').value || 'Generico',
+            autoBrand: autoBrand,
+            brand: document.getElementById('p-brand').value || 'Genérico',
             category: document.getElementById('p-cat').value,
             applications: document.getElementById('p-apps').value || 'Universal / Multimarca',
             equivalences: document.getElementById('p-eq').value,
@@ -883,7 +1039,8 @@
         const newProduct = {
           id: Date.now(),
           name: document.getElementById('p-name').value,
-          brand: document.getElementById('p-brand').value || 'Generico',
+          autoBrand: autoBrand,
+          brand: document.getElementById('p-brand').value || 'Genérico',
           category: document.getElementById('p-cat').value,
           applications: document.getElementById('p-apps').value || 'Universal / Multimarca',
           equivalences: document.getElementById('p-eq').value,
@@ -908,7 +1065,8 @@
 
       document.getElementById('p-editing-id').value = prod.id;
       document.getElementById('p-name').value = prod.name;
-      document.getElementById('p-brand').value = prod.brand === 'Generico' ? '' : prod.brand;
+      document.getElementById('p-auto-brand').value = prod.autoBrand || 'Universal / Multimarca';
+      document.getElementById('p-brand').value = prod.brand === 'Genérico' ? '' : prod.brand;
       document.getElementById('p-cat').value = prod.category;
       document.getElementById('p-apps').value = prod.applications === 'Universal / Multimarca' ? '' : prod.applications;
       document.getElementById('p-eq').value = prod.equivalences || '';
@@ -934,7 +1092,7 @@
     }
 
     function deleteProduct(id) {
-      if (confirm('¿Estás seguro de borrar este repuesto del sistema?')) {
+      if (confirm('¿Borrar este repuesto?')) {
         products = products.filter(p => p.id != id);
         localStorage.setItem('autopartes_stock', JSON.stringify(products));
         renderProducts();
@@ -946,33 +1104,28 @@
       if (!prod || !prod.photo) return;
 
       document.getElementById('modal-img-src').src = prod.photo;
-      
       document.getElementById('modal-img-details').innerHTML = `
         <div class="card-top">
           <div>
-            <div class="product-title" style="font-size: 1.25rem;">${prod.name}</div>
-            <div class="product-subtitle" style="font-size: 0.9rem;">${prod.brand} • ${prod.category}</div>
+            <div class="product-title" style="font-size: 1.2rem;">${prod.name}</div>
+            <div class="product-subtitle">${prod.brand} • ${prod.category}</div>
           </div>
           <div class="code-chip">${prod.code}</div>
         </div>
 
         <div class="compat-banner">
-          <div class="compat-title">🚗 Compatible con / Vehículos:</div>
+          <div class="compat-title">🚗 Compatible con (${prod.autoBrand || 'Multimarca'}):</div>
           <div class="compat-value">${prod.applications}</div>
         </div>
 
-        ${prod.equivalences ? `
-          <div style="margin-bottom: 12px;">
-            <span class="eq-chip">🔄 Eq: ${prod.equivalences}</span>
-          </div>
-        ` : ''}
+        ${prod.equivalences ? `<div style="margin-bottom: 12px;"><span class="eq-chip">🔄 Eq: ${prod.equivalences}</span></div>` : ''}
 
         <div class="card-bottom">
           <div>
             <div class="stock-tag">Stock: <strong>${prod.stock} u.</strong></div>
             <div class="location-tag">📍 ${prod.location}</div>
           </div>
-          <div class="price-value" style="font-size: 1.4rem;">$${prod.price.toLocaleString('es-AR')}</div>
+          <div class="price-value" style="font-size: 1.35rem;">$${prod.price.toLocaleString('es-AR')}</div>
         </div>
       `;
 
@@ -999,71 +1152,103 @@
 
       const term = filter.toLowerCase().trim();
 
-      const filtered = products.filter(p => 
-        p.name.toLowerCase().includes(term) ||
-        p.code.toLowerCase().includes(term) ||
-        (p.equivalences && p.equivalences.toLowerCase().includes(term)) ||
-        (p.applications && p.applications.toLowerCase().includes(term)) ||
-        (p.brand && p.brand.toLowerCase().includes(term)) ||
-        (p.category && p.category.toLowerCase().includes(term))
-      );
+      // Filtrar
+      let filtered = products.filter(p => {
+        const autoB = p.autoBrand || 'Universal / Multimarca';
+        const matchBrand = (selectedBrandFilter === 'TODAS') || (autoB === selectedBrandFilter);
+        const matchCat = (selectedCategoryFilter === 'TODAS') || (p.category === selectedCategoryFilter);
+        
+        const matchSearch = p.name.toLowerCase().includes(term) ||
+          p.code.toLowerCase().includes(term) ||
+          autoB.toLowerCase().includes(term) ||
+          (p.equivalences && p.equivalences.toLowerCase().includes(term)) ||
+          (p.applications && p.applications.toLowerCase().includes(term)) ||
+          (p.brand && p.brand.toLowerCase().includes(term));
+
+        return matchBrand && matchCat && matchSearch;
+      });
 
       if (filtered.length === 0) {
         list.innerHTML = `
           <div style="text-align:center; padding: 40px 20px; color: var(--text-muted);">
             <div style="font-size: 2.5rem; margin-bottom: 10px;">📦</div>
-            <p style="font-weight: 600;">No se encontraron repuestos o equivalencias.</p>
+            <p style="font-weight: 600;">No hay repuestos que coincidan con los filtros o la búsqueda.</p>
           </div>
         `;
         return;
       }
 
+      // Agrupar por Marca de Auto y luego por Categoría
+      const groupedByBrand = {};
       filtered.forEach(p => {
-        const card = document.createElement('div');
-        card.className = 'product-card';
-        card.innerHTML = `
-          ${p.photo ? `
-            <div class="product-img-wrapper" onclick="openImageModal(${p.id})">
-              <span class="product-badge-cat">${p.category}</span>
-              <img src="${p.photo}" class="product-img" alt="${p.name}">
-              <div class="zoom-hint">🔍 Ampliar Foto</div>
-            </div>
-          ` : ''}
-          
-          <div class="card-top">
-            <div>
-              <div class="product-title">${p.name}</div>
-              <div class="product-subtitle">${p.brand} ${!p.photo ? '• ' + p.category : ''}</div>
-            </div>
-            <div class="code-chip">${p.code}</div>
-          </div>
+        const b = p.autoBrand || 'Universal / Multimarca';
+        if (!groupedByBrand[b]) groupedByBrand[b] = {};
+        
+        const c = p.category || 'Otros';
+        if (!groupedByBrand[b][c]) groupedByBrand[b][c] = [];
 
-          <div class="compat-banner">
-            <div class="compat-title">🚗 Compatible con / Vehículos:</div>
-            <div class="compat-value">${p.applications}</div>
-          </div>
-          
-          ${p.equivalences ? `
-            <div>
-              <span class="eq-chip">🔄 Eq: ${p.equivalences}</span>
-            </div>
-          ` : ''}
-
-          <div class="card-bottom">
-            <div>
-              <div class="stock-tag">Stock: <strong>${p.stock} u.</strong></div>
-              <div class="location-tag">📍 ${p.location}</div>
-            </div>
-            <div class="price-value">$${p.price.toLocaleString('es-AR')}</div>
-          </div>
-
-          <div class="card-actions">
-            <button class="btn-action" onclick="editProduct(${p.id})">✏️ Editar / Foto</button>
-            <button class="btn-action" onclick="deleteProduct(${p.id})" style="color: #fca5a5;">🗑️ Borrar</button>
-          </div>
-        `;
-        list.appendChild(card);
+        groupedByBrand[b][c].push(p);
       });
+
+      // Dibujar Índice
+      for (const [brandName, categoriesObj] of Object.entries(groupedByBrand)) {
+        
+        const brandHeader = document.createElement('div');
+        brandHeader.className = 'brand-group-header';
+        brandHeader.innerHTML = `<span>🚗 MARCA: ${brandName.toUpperCase()}</span>`;
+        list.appendChild(brandHeader);
+
+        for (const [catName, items] of Object.entries(categoriesObj)) {
+          
+          const catSubheader = document.createElement('div');
+          catSubheader.className = 'category-group-subheading';
+          catSubheader.innerHTML = `<span>📂 ${catName}</span> <span style="font-size:0.75rem; color:var(--text-muted);">(${items.length})</span>`;
+          list.appendChild(catSubheader);
+
+          items.forEach(p => {
+            const card = document.createElement('div');
+            card.className = 'product-card';
+            card.innerHTML = `
+              ${p.photo ? `
+                <div class="product-img-wrapper" onclick="openImageModal(${p.id})">
+                  <span class="product-badge-cat">${p.category}</span>
+                  <img src="${p.photo}" class="product-img" alt="${p.name}">
+                  <div class="zoom-hint">🔍 Ampliar Foto</div>
+                </div>
+              ` : ''}
+              
+              <div class="card-top">
+                <div>
+                  <div class="product-title">${p.name}</div>
+                  <div class="product-subtitle">${p.brand} ${!p.photo ? '• ' + p.category : ''}</div>
+                </div>
+                <div class="code-chip">${p.code}</div>
+              </div>
+
+              <div class="compat-banner">
+                <div class="compat-title">🚗 Compatible con (${p.autoBrand || 'Multimarca'}):</div>
+                <div class="compat-value">${p.applications}</div>
+              </div>
+              
+              ${p.equivalences ? `<div><span class="eq-chip">🔄 Eq: ${p.equivalences}</span></div>` : ''}
+
+              <div class="card-bottom">
+                <div>
+                  <div class="stock-tag">Stock: <strong>${p.stock} u.</strong></div>
+                  <div class="location-tag">📍 ${p.location}</div>
+                </div>
+                <div class="price-value">$${p.price.toLocaleString('es-AR')}</div>
+              </div>
+
+              <div class="card-actions">
+                <button class="btn-action" onclick="editProduct(${p.id})">✏️ Editar / Foto</button>
+                <button class="btn-action" onclick="deleteProduct(${p.id})" style="color: #fca5a5;">🗑️ Borrar</button>
+              </div>
+            `;
+            list.appendChild(card);
+          });
+        }
+      }
     }
 
     function filterProducts() {
@@ -1105,14 +1290,13 @@
     }
 
     function closeScanner() {
-      if (codeReader) {
-        codeReader.reset();
-      }
+      if (codeReader) codeReader.reset();
       document.getElementById('scanner-modal').style.display = 'none';
     }
 
     // Inicializar
     checkAuth();
+    renderFilterChips();
     renderProducts();
   </script>
 </body>
