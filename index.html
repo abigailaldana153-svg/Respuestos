@@ -3,67 +3,106 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>RepuestoStock</title>
-  <meta name="theme-color" content="#0f172a">
+  <title>Repuestos Pro - Gestión de Stock</title>
+  <meta name="theme-color" content="#2563eb">
+  <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
   <style>
-    * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
-    body { background-color: #0f172a; color: #f8fafc; padding: 16px; max-width: 480px; margin: 0 auto; }
+    :root {
+      --bg: #f8fafc;
+      --card-bg: #ffffff;
+      --text: #0f172a;
+      --subtext: #64748b;
+      --border: #e2e8f0;
+      --primary: #2563eb;
+      --primary-hover: #1d4ed8;
+      --success: #10b981;
+      --warning: #f59e0b;
+      --danger: #ef4444;
+    }
+
+    [data-theme="dark"] {
+      --bg: #0f172a;
+      --card-bg: #1e293b;
+      --text: #f8fafc;
+      --subtext: #94a3b8;
+      --border: #334155;
+      --primary: #3b82f6;
+      --primary-hover: #60a5fa;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: system-ui, -apple-system, sans-serif; }
+    body { background-color: var(--bg); color: var(--text); padding: 12px; max-width: 500px; margin: 0 auto; padding-bottom: 80px; transition: background 0.3s, color 0.3s; }
+
+    header { display: flex; justify-content: space-between; align-items: center; padding: 12px 0; margin-bottom: 12px; border-bottom: 2px solid var(--border); }
+    h1 { font-size: 1.2rem; font-weight: 800; color: var(--primary); display: flex; align-items: center; gap: 8px; }
     
-    header { display: flex; justify-content: space-between; align-items: center; padding-bottom: 14px; border-bottom: 1px solid #334155; margin-bottom: 16px; }
-    h1 { font-size: 1.3rem; color: #f59e0b; font-weight: 800; display: flex; align-items: center; gap: 6px; }
-    .badge-count { background: #1e293b; color: #94a3b8; padding: 4px 10px; border-radius: 20px; font-size: 0.8rem; font-weight: 600; border: 1px solid #334155; }
+    .top-actions { display: flex; gap: 8px; align-items: center; }
+    .btn-icon { background: var(--card-bg); border: 1px solid var(--border); color: var(--text); padding: 8px 10px; border-radius: 8px; font-size: 0.9rem; cursor: pointer; }
 
-    .nav { display: flex; gap: 8px; margin-bottom: 16px; }
-    .btn-tab { flex: 1; padding: 12px; border: none; border-radius: 10px; font-weight: 700; cursor: pointer; transition: 0.2s; font-size: 0.9rem; }
-    .btn-active { background: #f59e0b; color: #0f172a; }
-    .btn-inactive { background: #1e293b; color: #94a3b8; border: 1px solid #334155; }
+    .search-box { position: relative; margin-bottom: 12px; }
+    .search-input { width: 100%; padding: 12px 40px 12px 14px; border-radius: 10px; border: 1px solid var(--border); background: var(--card-bg); color: var(--text); font-size: 0.95rem; font-weight: 500; }
+    .search-input:focus { border-color: var(--primary); outline: none; }
+    .scan-btn-inline { position: absolute; right: 8px; top: 8px; background: var(--primary); color: white; border: none; padding: 6px 10px; border-radius: 6px; font-size: 0.8rem; cursor: pointer; }
 
-    .search-input, .select-input { width: 100%; padding: 12px; border-radius: 10px; border: 1px solid #334155; background: #1e293b; color: #fff; font-size: 0.9rem; margin-bottom: 10px; }
-    .search-input:focus, .select-input:focus { border-color: #f59e0b; outline: none; }
+    .filter-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 12px; }
+    select, input[type="text"], input[type="number"], input[type="url"] { width: 100%; padding: 10px; border-radius: 8px; border: 1px solid var(--border); background: var(--card-bg); color: var(--text); font-size: 0.9rem; }
 
-    .filter-group { display: flex; gap: 8px; margin-bottom: 12px; }
+    .card { background: var(--card-bg); border-radius: 12px; padding: 14px; margin-bottom: 12px; border: 1px solid var(--border); box-shadow: 0 2px 4px rgba(0,0,0,0.02); }
+    .card-top { display: flex; justify-content: space-between; align-items: flex-start; gap: 8px; }
+    .product-img { width: 55px; height: 55px; border-radius: 8px; object-fit: cover; background: #eee; flex-shrink: 0; }
+    .product-title { font-size: 1rem; font-weight: 700; line-height: 1.2; margin-bottom: 4px; }
+    .product-code { font-size: 0.75rem; background: var(--border); padding: 2px 6px; border-radius: 4px; font-family: monospace; font-weight: 600; display: inline-block; }
 
-    .card { background: #1e293b; border-radius: 12px; padding: 14px; margin-bottom: 12px; border: 1px solid #334155; position: relative; }
-    .card-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 6px; }
-    .title { font-weight: 700; font-size: 1rem; color: #f8fafc; flex: 1; padding-right: 8px; }
-    .code { font-size: 0.75rem; color: #f59e0b; background: #0f172a; padding: 3px 8px; border-radius: 6px; font-family: monospace; border: 1px solid #334155; }
-    .info { font-size: 0.85rem; color: #94a3b8; margin-top: 4px; display: flex; align-items: center; gap: 6px; }
-    .tag { background: #334155; color: #f1f5f9; padding: 2px 6px; border-radius: 4px; font-size: 0.75rem; font-weight: 600; }
+    .p-info { font-size: 0.85rem; color: var(--subtext); margin-top: 6px; display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+    .badge { padding: 2px 8px; border-radius: 12px; font-size: 0.75rem; font-weight: 700; }
+    .bg-ok { background: #d1fae5; color: #065f46; }
+    .bg-low { background: #fee2e2; color: #991b1b; }
+
+    .card-bottom { display: flex; justify-content: space-between; align-items: center; margin-top: 12px; padding-top: 10px; border-top: 1px dashed var(--border); }
+    .price-tag { font-size: 1.25rem; font-weight: 800; color: var(--primary); }
+
+    .card-actions { display: flex; gap: 6px; }
+    .btn-action { border: none; padding: 8px 12px; border-radius: 8px; font-weight: 700; font-size: 0.8rem; cursor: pointer; display: flex; align-items: center; gap: 4px; }
+    .btn-wa { background: #25d366; color: white; }
+    .btn-edit { background: var(--border); color: var(--text); }
+
+    /* Bottom Navbar */
+    .bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; background: var(--card-bg); border-top: 1px solid var(--border); display: flex; justify-content: space-around; padding: 8px 0; max-width: 500px; margin: 0 auto; z-index: 100; }
+    .nav-item { display: flex; flex-direction: column; align-items: center; border: none; background: none; color: var(--subtext); font-size: 0.75rem; font-weight: 600; cursor: pointer; flex: 1; }
+    .nav-item.active { color: var(--primary); }
+    .nav-item span { font-size: 1.2rem; margin-bottom: 2px; }
+
+    .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 200; align-items: center; justify-content: center; padding: 16px; }
+    .modal-content { background: var(--card-bg); width: 100%; max-width: 440px; border-radius: 16px; padding: 18px; max-height: 90vh; overflow-y: auto; }
+    .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; }
     
-    .card-footer { display: flex; justify-content: space-between; align-items: flex-end; margin-top: 12px; padding-top: 10px; border-top: 1px solid #334155; }
-    .price { font-size: 1.2rem; font-weight: 800; color: #10b981; }
-    .stock { font-size: 0.8rem; font-weight: 700; margin-top: 2px; }
-    .stock-ok { color: #10b981; }
-    .stock-low { color: #ef4444; }
+    .form-group { margin-bottom: 10px; }
+    .form-group label { font-size: 0.8rem; font-weight: 700; color: var(--subtext); display: block; margin-bottom: 4px; }
+    .btn-submit { background: var(--primary); color: white; border: none; width: 100%; padding: 12px; border-radius: 10px; font-size: 1rem; font-weight: 700; margin-top: 10px; cursor: pointer; }
 
-    .btn-wa { background: #25d366; color: #fff; border: none; padding: 8px 12px; border-radius: 8px; font-size: 0.8rem; font-weight: 700; cursor: pointer; display: flex; align-items: center; gap: 4px; }
-
-    .form-group { margin-bottom: 12px; }
-    label { font-size: 0.8rem; color: #94a3b8; font-weight: 600; display: block; margin-bottom: 6px; }
-    input, select { width: 100%; padding: 12px; border-radius: 8px; border: 1px solid #334155; background: #0f172a; color: #fff; font-size: 0.9rem; }
-    input:focus, select:focus { border-color: #f59e0b; outline: none; }
-
-    .btn-submit { background: #10b981; color: #fff; border: none; width: 100%; padding: 14px; border-radius: 10px; font-weight: 800; font-size: 1rem; cursor: pointer; margin-top: 8px; }
-    .hidden { display: none; }
+    .hidden { display: none !important; }
+    #reader { width: 100%; margin-bottom: 10px; border-radius: 8px; overflow: hidden; }
   </style>
 </head>
-<body>
+<body data-theme="dark">
 
   <header>
-    <h1>⚙️ RepuestoStock</h1>
-    <span class="badge-count" id="count">0 Piezas</span>
+    <h1>📦 RepuestosPro</h1>
+    <div class="top-actions">
+      <button class="btn-icon" onclick="toggleTheme()" title="Cambiar tema">🌙 / ☀️</button>
+      <button class="btn-icon" onclick="openInflationModal()" title="Aumento masivo">📈 %</button>
+    </div>
   </header>
 
-  <div class="nav">
-    <button class="btn-tab btn-active" id="tab-search-btn" onclick="setTab('search')">🔍 Buscar Stock</button>
-    <button class="btn-tab btn-inactive" id="tab-add-btn" onclick="setTab('add')">➕ Cargar Artículo</button>
-  </div>
+  <!-- PESTAÑA 1: INVENTARIO -->
+  <div id="tab-inventory">
+    <div class="search-box">
+      <input type="text" class="search-input" id="search" placeholder="🔍 Buscar por repuesto, auto, código..." onkeyup="filterData()">
+      <button class="scan-btn-inline" onclick="openScanner()">📷 Escanear</button>
+    </div>
 
-  <div id="view-search">
-    <input type="text" class="search-input" id="search" placeholder="Buscar aceite, foco, corsa, código..." onkeyup="filterData()">
-    
-    <div class="filter-group">
-      <select class="select-input" id="filter-brand" onchange="filterData()">
+    <div class="filter-grid">
+      <select id="filter-brand" onchange="filterData()">
         <option value="">Todas las Marcas</option>
         <option value="Universal / Multimarca">Universal / Multimarca</option>
         <option value="Chevrolet">Chevrolet</option>
@@ -74,7 +113,7 @@
         <option value="Ford">Ford</option>
       </select>
 
-      <select class="select-input" id="filter-category" onchange="filterData()">
+      <select id="filter-category" onchange="filterData()">
         <option value="">Todas las Categ.</option>
         <option value="Lubricantes y Fluidos">Lubricantes y Fluidos</option>
         <option value="Electricidad e Iluminación">Electricidad / Focos</option>
@@ -82,117 +121,197 @@
         <option value="Frenos">Frenos</option>
         <option value="Motor">Motor</option>
         <option value="Suspensión">Suspensión</option>
-        <option value="Encendido">Encendido</option>
-        <option value="Accesorios">Accesorios</option>
       </select>
+    </div>
+
+    <div id="scanner-container" class="hidden">
+      <div id="reader"></div>
+      <button class="btn-submit" style="background:var(--danger); margin-bottom:10px;" onclick="closeScanner()">Cerrar Cámara</button>
     </div>
 
     <div id="list"></div>
   </div>
 
-  <div id="view-add" class="hidden">
+  <!-- PESTAÑA 2: CARGAR -->
+  <div id="tab-add" class="hidden">
+    <h2 style="font-size:1.1rem; margin-bottom:12px;">➕ Cargar / Editar Repuesto</h2>
+    <input type="hidden" id="edit-id">
+    
     <div class="form-group">
-      <label>Categoría *</label>
-      <select id="category">
-        <option value="Lubricantes y Fluidos">Lubricantes y Fluidos (Aceite, Agua, etc.)</option>
-        <option value="Electricidad e Iluminación">Electricidad e Iluminación (Focos, etc.)</option>
-        <option value="Filtros">Filtros</option>
-        <option value="Frenos">Frenos</option>
-        <option value="Motor">Motor</option>
-        <option value="Suspensión">Suspensión</option>
-        <option value="Encendido">Encendido</option>
-        <option value="Accesorios">Accesorios</option>
-      </select>
+      <label>Nombre del Repuesto / Producto *</label>
+      <input type="text" id="name" placeholder="Ej: Aceite Shell 10W40 / Foco H7">
+    </div>
+
+    <div class="filter-grid">
+      <div class="form-group">
+        <label>Marca Vehículo *</label>
+        <select id="brand">
+          <option value="Universal / Multimarca">Universal</option>
+          <option value="Chevrolet">Chevrolet</option>
+          <option value="Volkswagen">Volkswagen</option>
+          <option value="Fiat">Fiat</option>
+          <option value="Peugeot">Peugeot</option>
+          <option value="Renault">Renault</option>
+          <option value="Ford">Ford</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Categoría *</label>
+        <select id="category">
+          <option value="Lubricantes y Fluidos">Lubricantes/Fluidos</option>
+          <option value="Electricidad e Iluminación">Electricidad</option>
+          <option value="Filtros">Filtros</option>
+          <option value="Frenos">Frenos</option>
+          <option value="Motor">Motor</option>
+          <option value="Suspensión">Suspensión</option>
+        </select>
+      </div>
     </div>
 
     <div class="form-group">
-      <label>Marca del Vehículo / Insumo *</label>
-      <select id="brand">
-        <option value="Universal / Multimarca">Universal / Multimarca (Aceites, Focos, Agua)</option>
-        <option value="Chevrolet">Chevrolet</option>
-        <option value="Volkswagen">Volkswagen</option>
-        <option value="Fiat">Fiat</option>
-        <option value="Peugeot">Peugeot</option>
-        <option value="Renault">Renault</option>
-        <option value="Ford">Ford</option>
-        <option value="Otra">Otra Marca</option>
-      </select>
+      <label>Modelo / Aplicación *</label>
+      <input type="text" id="model" placeholder="Ej: Corsa 1.4 / Bidón 4L">
     </div>
 
-    <div class="form-group">
-      <label>Modelo(s) o Especificación *</label>
-      <input type="text" id="model" placeholder="Ej: Corsa 1.4 / O bien '15W40 Semi-Sintético 4L'">
+    <div class="filter-grid">
+      <div class="form-group">
+        <label>Código de Pieza</label>
+        <input type="text" id="code" placeholder="Ej: H7-12V">
+      </div>
+      <div class="form-group">
+        <label>Ubicación Depósito</label>
+        <input type="text" id="location" placeholder="Ej: Estante A2">
+      </div>
     </div>
 
-    <div class="form-group">
-      <label>Nombre del Producto *</label>
-      <input type="text" id="name" placeholder="Ej: Aceite Shell Helix / Foco H7 12V / Agua Destilada 5L">
-    </div>
-
-    <div class="form-group">
-      <label>Código / Modelo de Pieza (Opcional)</label>
-      <input type="text" id="code" placeholder="Ej: H7-12V, 15W40, o dejar vacío">
-    </div>
-
-    <div style="display: flex; gap: 10px;">
-      <div class="form-group" style="flex:1;">
+    <div class="filter-grid">
+      <div class="form-group">
         <label>Precio ($) *</label>
         <input type="number" id="price" placeholder="4500">
       </div>
-      <div class="form-group" style="flex:1;">
+      <div class="form-group">
         <label>Stock *</label>
         <input type="number" id="stock" placeholder="10">
       </div>
     </div>
 
     <div class="form-group">
-      <label>Ubicación en Depósito</label>
-      <input type="text" id="location" placeholder="Ej: Pasillo Fluidos - Bidones / Caja Focos">
+      <label>Link de Foto (Opcional)</label>
+      <input type="url" id="photo" placeholder="https://ejemplo.com/foto.jpg">
     </div>
 
     <button class="btn-submit" onclick="saveData()">💾 Guardar Producto</button>
   </div>
 
+  <!-- PESTAÑA 3: AJUSTES & EXPORTAR -->
+  <div id="tab-settings" class="hidden">
+    <h2 style="font-size:1.1rem; margin-bottom:12px;">⚙️ Opciones & Copia de Seguridad</h2>
+    <div class="card">
+      <h3 style="font-size:0.95rem; margin-bottom:8px;">📊 Copia de Seguridad Excel (CSV)</h3>
+      <p style="font-size:0.8rem; color:var(--subtext); margin-bottom:10px;">Descargá toda tu lista de repuestos a tu celular.</p>
+      <button class="btn-submit" style="background:var(--success);" onclick="exportCSV()">📥 Descargar Excel / CSV</button>
+    </div>
+
+    <div class="card">
+      <h3 style="font-size:0.95rem; margin-bottom:8px;">⚠️ Stock Crítico</h3>
+      <p style="font-size:0.8rem; color:var(--subtext); margin-bottom:10px;">Ver repuestos con 2 o menos unidades disponibles.</p>
+      <button class="btn-submit" style="background:var(--warning);" onclick="showCriticalStock()">🚨 Ver Repuestos por Agotarse</button>
+    </div>
+  </div>
+
+  <!-- MODAL AUMENTO PRECIOS -->
+  <div class="modal" id="modal-inflation">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3>📈 Aumento Masivo de Precios</h3>
+        <button class="btn-icon" onclick="closeInflationModal()">✕</button>
+      </div>
+      <div class="form-group">
+        <label>Porcentaje de Aumento (%)</label>
+        <input type="number" id="inf-percent" placeholder="Ej: 10 para aumentar 10%">
+      </div>
+      <div class="form-group">
+        <label>Aplicar solo a esta Marca (Opcional)</label>
+        <select id="inf-brand">
+          <option value="">Todas las Marcas</option>
+          <option value="Chevrolet">Chevrolet</option>
+          <option value="Volkswagen">Volkswagen</option>
+          <option value="Fiat">Fiat</option>
+          <option value="Peugeot">Peugeot</option>
+          <option value="Renault">Renault</option>
+          <option value="Ford">Ford</option>
+          <option value="Universal / Multimarca">Universal</option>
+        </select>
+      </div>
+      <button class="btn-submit" onclick="applyInflation()">Aplicar Aumento</button>
+    </div>
+  </div>
+
+  <!-- BARRA DE NAVEGACIÓN INFERIOR -->
+  <nav class="bottom-nav">
+    <button class="nav-item active" id="nav-inv" onclick="switchTab('inventory')">
+      <span>🔍</span>Buscar
+    </button>
+    <button class="nav-item" id="nav-add" onclick="switchTab('add')">
+      <span>➕</span>Cargar
+    </button>
+    <button class="nav-item" id="nav-set" onclick="switchTab('settings')">
+      <span>⚙️</span>Ajustes
+    </button>
+  </nav>
+
   <script>
-    let db = JSON.parse(localStorage.getItem('repuestos_db')) || [
-      { id: 1, brand: 'Universal / Multimarca', model: '10W40 Semi-Sintético 4L', category: 'Lubricantes y Fluidos', name: 'Aceite Elaion F30', code: 'LUB-10W40', price: 32000, stock: 6, location: 'Sector Aceites - Estante 1' },
-      { id: 2, brand: 'Universal / Multimarca', model: 'Bidón 5 Litros Desmineralizada', category: 'Lubricantes y Fluidos', name: 'Agua Destilada', code: 'AGUA-5L', price: 2500, stock: 12, location: 'Piso Sector Fluidos' },
-      { id: 3, brand: 'Universal / Multimarca', model: 'H7 12V 55W PX26d', category: 'Electricidad e Iluminación', name: 'Foco Halógeno Osram H7', code: 'OS-H7-12V', price: 4200, stock: 8, location: 'Caja Focos - Mostrador' },
-      { id: 4, brand: 'Chevrolet', model: 'Corsa / Classic 1.4 1.6', category: 'Filtros', name: 'Filtro de Aceite', code: 'WO-130', price: 8500, stock: 4, location: 'Estante A - Caja 02' }
+    let db = JSON.parse(localStorage.getItem('repuestos_db_v2')) || [
+      { id: 1, brand: 'Universal / Multimarca', model: '10W40 Semi-Sintético 4L', category: 'Lubricantes y Fluidos', name: 'Aceite Elaion F30', code: 'LUB-10W40', price: 32000, stock: 6, location: 'Estante 1', photo: 'https://images.unsplash.com/photo-1615906655593-ad0386982a0f?w=100' },
+      { id: 2, brand: 'Universal / Multimarca', model: 'H7 12V 55W', category: 'Electricidad e Iluminación', name: 'Foco Osram H7', code: 'OS-H7', price: 4200, stock: 1, location: 'Caja Focos', photo: '' }
     ];
+
+    let html5QrcodeScanner = null;
 
     function renderList(items = db) {
       const container = document.getElementById('list');
       container.innerHTML = '';
+
       if (items.length === 0) {
-        container.innerHTML = '<p style="text-align:center; color:#94a3b8; margin-top:20px;">No se encontraron artículos con esos filtros.</p>';
+        container.innerHTML = '<p style="text-align:center; color:var(--subtext); margin-top:30px;">No se encontraron repuestos.</p>';
         return;
       }
+
       items.forEach(item => {
         const isLow = item.stock <= 2;
+        const imgUrl = item.photo || 'https://via.placeholder.com/60?text=Pieza';
+        
         const card = document.createElement('div');
         card.className = 'card';
         card.innerHTML = `
-          <div class="card-header">
-            <div class="title">${item.name}</div>
-            <span class="code">${item.code}</span>
-          </div>
-          <div class="info">🚘 <b>${item.brand}</b> (${item.model})</div>
-          <div class="info">🏷️ <b>Categoría:</b> <span class="tag">${item.category}</span></div>
-          <div class="info">📍 <b>Ubicación:</b> ${item.location || 'Sin asignar'}</div>
-          <div class="card-footer">
-            <div>
-              <div class="price">$${Number(item.price).toLocaleString('es-AR')}</div>
-              <div class="stock ${isLow ? 'stock-low' : 'stock-ok'}">
-                ${isLow ? '⚠️ Stock Bajo: ' : '🟢 Stock: '} ${item.stock} un.
+          <div class="card-top">
+            <img src="${imgUrl}" class="product-img" alt="Repuesto" onerror="this.src='https://via.placeholder.com/60?text=Pieza'">
+            <div style="flex:1;">
+              <div class="product-title">${item.name}</div>
+              <span class="product-code">${item.code}</span>
+              <div class="p-info">
+                🚘 <b>${item.brand}</b> (${item.model})
+              </div>
+              <div class="p-info">
+                📍 <b>Ubicación:</b> ${item.location || 'S/A'}
               </div>
             </div>
-            <button class="btn-wa" onclick="sendWA('${item.name}', '${item.model}', ${item.price}, ${item.stock})">📲 Respuesta WA</button>
+          </div>
+          <div class="card-bottom">
+            <div>
+              <div class="price-tag">$${Number(item.price).toLocaleString('es-AR')}</div>
+              <span class="badge ${isLow ? 'bg-low' : 'bg-ok'}">
+                ${isLow ? '⚠️ Stock Bajo: ' : '🟢 Stock: '} ${item.stock} un.
+              </span>
+            </div>
+            <div class="card-actions">
+              <button class="btn-action btn-edit" onclick="editProduct(${item.id})">✏️ Editar</button>
+              <button class="btn-action btn-wa" onclick="sendWA('${item.name}', '${item.model}', ${item.price}, ${item.stock})">📲 WA</button>
+            </div>
           </div>
         `;
         container.appendChild(card);
       });
-      document.getElementById('count').innerText = `${items.length} Artículos`;
     }
 
     function filterData() {
@@ -210,69 +329,152 @@
       renderList(filtered);
     }
 
-    function setTab(tab) {
-      if (tab === 'search') {
-        document.getElementById('view-search').classList.remove('hidden');
-        document.getElementById('view-add').classList.add('hidden');
-        document.getElementById('tab-search-btn').className = 'btn-tab btn-active';
-        document.getElementById('tab-add-btn').className = 'btn-tab btn-inactive';
-      } else {
-        document.getElementById('view-search').classList.add('hidden');
-        document.getElementById('view-add').classList.remove('hidden');
-        document.getElementById('tab-search-btn').className = 'btn-tab btn-inactive';
-        document.getElementById('tab-add-btn').className = 'btn-tab btn-active';
+    function switchTab(tab) {
+      document.getElementById('tab-inventory').classList.add('hidden');
+      document.getElementById('tab-add').classList.add('hidden');
+      document.getElementById('tab-settings').classList.add('hidden');
+
+      document.getElementById('nav-inv').classList.remove('active');
+      document.getElementById('nav-add').classList.remove('active');
+      document.getElementById('nav-set').classList.remove('active');
+
+      if (tab === 'inventory') {
+        document.getElementById('tab-inventory').classList.remove('hidden');
+        document.getElementById('nav-inv').classList.add('active');
+      } else if (tab === 'add') {
+        document.getElementById('tab-add').classList.remove('hidden');
+        document.getElementById('nav-add').classList.add('active');
+      } else if (tab === 'settings') {
+        document.getElementById('tab-settings').classList.remove('hidden');
+        document.getElementById('nav-set').classList.add('active');
       }
     }
 
     function saveData() {
-      const category = document.getElementById('category').value;
-      const brand = document.getElementById('brand').value;
-      const model = document.getElementById('model').value.trim();
+      const editId = document.getElementById('edit-id').value;
       const name = document.getElementById('name').value.trim();
+      const brand = document.getElementById('brand').value;
+      const category = document.getElementById('category').value;
+      const model = document.getElementById('model').value.trim();
       const price = document.getElementById('price').value;
       const stock = document.getElementById('stock').value;
 
-      if (!model || !name || !price || !stock) {
-        alert('Por favor completá Especificación/Modelo, Nombre, Precio y Stock.');
+      if (!name || !model || !price || !stock) {
+        alert('Completá al menos Nombre, Modelo, Precio y Stock.');
         return;
       }
 
-      let code = document.getElementById('code').value.trim();
-      if (!code) {
-        code = 'ART-' + Math.floor(100 + Math.random() * 900);
+      let code = document.getElementById('code').value.trim() || 'ART-' + Math.floor(100 + Math.random()*900);
+
+      if (editId) {
+        const index = db.findIndex(i => i.id == editId);
+        if (index !== -1) {
+          db[index] = { ...db[index], name, brand, category, model, code: code.toUpperCase(), price: parseFloat(price), stock: parseInt(stock), location: document.getElementById('location').value.trim(), photo: document.getElementById('photo').value.trim() };
+        }
+      } else {
+        const newItem = { id: Date.now(), name, brand, category, model, code: code.toUpperCase(), price: parseFloat(price), stock: parseInt(stock), location: document.getElementById('location').value.trim(), photo: document.getElementById('photo').value.trim() };
+        db.unshift(newItem);
       }
 
-      const newItem = {
-        id: Date.now(),
-        brand,
-        model,
-        category,
-        name,
-        code: code.toUpperCase(),
-        price: parseFloat(price),
-        stock: parseInt(stock),
-        location: document.getElementById('location').value.trim()
-      };
+      localStorage.setItem('repuestos_db_v2', JSON.stringify(db));
+      clearForm();
+      switchTab('inventory');
+      renderList();
+      alert('✅ Producto guardado con éxito.');
+    }
 
-      db.unshift(newItem);
-      localStorage.setItem('repuestos_db', JSON.stringify(db));
+    function editProduct(id) {
+      const item = db.find(i => i.id === id);
+      if (!item) return;
 
-      document.getElementById('model').value = '';
+      document.getElementById('edit-id').value = item.id;
+      document.getElementById('name').value = item.name;
+      document.getElementById('brand').value = item.brand;
+      document.getElementById('category').value = item.category;
+      document.getElementById('model').value = item.model;
+      document.getElementById('code').value = item.code;
+      document.getElementById('price').value = item.price;
+      document.getElementById('stock').value = item.stock;
+      document.getElementById('location').value = item.location || '';
+      document.getElementById('photo').value = item.photo || '';
+
+      switchTab('add');
+    }
+
+    function clearForm() {
+      document.getElementById('edit-id').value = '';
       document.getElementById('name').value = '';
+      document.getElementById('model').value = '';
       document.getElementById('code').value = '';
       document.getElementById('price').value = '';
       document.getElementById('stock').value = '';
       document.getElementById('location').value = '';
-
-      setTab('search');
-      renderList();
-      alert(`✅ Guardado: ${name}`);
+      document.getElementById('photo').value = '';
     }
 
     function sendWA(name, model, price, stock) {
-      const msg = `Hola! Sí, tenemos stock de ${name} (${model}). El precio es $${Number(price).toLocaleString('es-AR')}. (${stock} un. disponibles)`;
+      const msg = `Hola! Sí, tenemos stock de ${name} (${model}). Precio: $${Number(price).toLocaleString('es-AR')}. (${stock} un. disponibles)`;
       navigator.clipboard.writeText(msg);
-      alert('📋 Respuesta lista: copiada al portapapeles para enviar por WhatsApp.');
+      alert('📋 Respuesta copiada listo para pegar en WhatsApp.');
+    }
+
+    function toggleTheme() {
+      const current = document.body.getAttribute('data-theme');
+      document.body.setAttribute('data-theme', current === 'dark' ? 'light' : 'dark');
+    }
+
+    function openInflationModal() { document.getElementById('modal-inflation').style.display = 'flex'; }
+    function closeInflationModal() { document.getElementById('modal-inflation').style.display = 'none'; }
+
+    function applyInflation() {
+      const pct = parseFloat(document.getElementById('inf-percent').value);
+      const b = document.getElementById('inf-brand').value;
+
+      if (!pct) { alert('Ingresá un porcentaje.'); return; }
+
+      db.forEach(i => {
+        if (b === '' || i.brand === b) {
+          i.price = Math.round(i.price * (1 + pct / 100));
+        }
+      });
+
+      localStorage.setItem('repuestos_db_v2', JSON.stringify(db));
+      renderList();
+      closeInflationModal();
+      alert(`✅ Precios actualizados un +${pct}%.`);
+    }
+
+    function exportCSV() {
+      let csv = 'Nombre,Marca,Modelo,Codigo,Precio,Stock,Ubicacion\n';
+      db.forEach(i => {
+        csv += `"${i.name}","${i.brand}","${i.model}","${i.code}",${i.price},${i.stock},"${i.location}"\n`;
+      });
+      const blob = new Blob([csv], { type: 'text/csv' });
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = 'Inventario_Repuestos.csv';
+      a.click();
+    }
+
+    function showCriticalStock() {
+      const critical = db.filter(i => i.stock <= 2);
+      switchTab('inventory');
+      renderList(critical);
+    }
+
+    function openScanner() {
+      document.getElementById('scanner-container').classList.remove('hidden');
+      html5QrcodeScanner = new Html5QrcodeScanner("reader", { fps: 10, qrbox: 250 });
+      html5QrcodeScanner.render((decodedText) => {
+        document.getElementById('search').value = decodedText;
+        filterData();
+        closeScanner();
+      });
+    }
+
+    function closeScanner() {
+      if (html5QrcodeScanner) { html5QrcodeScanner.clear(); }
+      document.getElementById('scanner-container').classList.add('hidden');
     }
 
     renderList();
