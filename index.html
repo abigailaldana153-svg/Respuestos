@@ -3,7 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>RepuestosPro - Filtro por Marcas</title>
+  <title>RepuestosPro - Filtro por Marcas y Equivalencias</title>
+  <!-- Librería Zxing para lectura de códigos de barras -->
   <script src="https://unpkg.com/@zxing/library@latest"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -14,14 +15,10 @@
       --card-bg: rgba(23, 31, 51, 0.75);
       --card-border: rgba(255, 255, 255, 0.08);
       --input-bg: rgba(15, 23, 42, 0.6);
-      
       --accent-gradient: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
       --accent-glow: rgba(59, 130, 246, 0.35);
-      
       --text-main: #f8fafc;
       --text-muted: #94a3b8;
-      --text-dim: #64748b;
-      
       --radius-lg: 20px;
       --radius-md: 14px;
       --radius-sm: 10px;
@@ -31,7 +28,7 @@
       box-sizing: border-box;
       margin: 0;
       padding: 0;
-      font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, Roboto, sans-serif;
+      font-family: 'Plus Jakarta Sans', sans-serif;
       -webkit-tap-highlight-color: transparent;
     }
 
@@ -93,7 +90,7 @@
       margin: 0 auto;
     }
 
-    /* Buscador */
+    /* Buscador y Botón Cámara */
     .search-wrapper {
       position: relative;
       margin-bottom: 16px;
@@ -122,6 +119,17 @@
       border-radius: var(--radius-md);
       color: var(--text-main);
       font-size: 0.95rem;
+    }
+
+    .btn-scan-cam {
+      background: var(--accent-gradient);
+      border: none;
+      border-radius: var(--radius-md);
+      color: white;
+      padding: 0 16px;
+      font-size: 1.2rem;
+      cursor: pointer;
+      box-shadow: 0 4px 12px var(--accent-glow);
     }
 
     /* FILTROS E ÍNDICE */
@@ -155,24 +163,20 @@
       border-radius: 20px;
       white-space: nowrap;
       cursor: pointer;
-      transition: all 0.2s ease;
     }
 
     .chip-btn.active-brand {
       background: linear-gradient(135deg, #10b981 0%, #059669 100%);
       border-color: transparent;
       color: #ffffff;
-      box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
     }
 
     .chip-btn.active-cat {
       background: var(--accent-gradient);
       border-color: transparent;
       color: #ffffff;
-      box-shadow: 0 4px 12px var(--accent-glow);
     }
 
-    /* ENCABEZADOS DE GRUPO */
     .brand-group-header {
       font-size: 1.1rem;
       font-weight: 800;
@@ -180,30 +184,6 @@
       margin: 20px 0 10px 0;
       padding-bottom: 4px;
       border-bottom: 2px solid rgba(16, 185, 129, 0.3);
-      display: flex;
-      align-items: center;
-      gap: 6px;
-    }
-
-    .cat-group-subheader {
-      font-size: 0.9rem;
-      font-weight: 700;
-      color: #60a5fa;
-      margin: 12px 0 8px 8px;
-    }
-
-    .btn-icon {
-      width: 48px;
-      height: 48px;
-      border-radius: var(--radius-md);
-      background: var(--input-bg);
-      border: 1px solid var(--card-border);
-      color: var(--text-main);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 1.2rem;
-      cursor: pointer;
     }
 
     .btn-primary {
@@ -220,6 +200,7 @@
       gap: 10px;
       font-size: 0.95rem;
       box-shadow: 0 4px 15px var(--accent-glow);
+      width: 100%;
     }
 
     .btn-outline {
@@ -287,12 +268,11 @@
     .product-img-wrapper {
       position: relative;
       width: 100%;
-      height: 180px;
+      height: 160px;
       border-radius: var(--radius-md);
       overflow: hidden;
       margin-bottom: 10px;
       background: #0f172a;
-      cursor: pointer;
     }
 
     .product-img {
@@ -330,6 +310,12 @@
       margin: 8px 0;
       border-radius: 6px;
       font-size: 0.85rem;
+    }
+
+    .equiv-banner {
+      font-size: 0.78rem;
+      color: #34d399;
+      margin-top: 4px;
     }
 
     .card-bottom {
@@ -401,43 +387,40 @@
     .tab-content { display: none; }
     .tab-content.active { display: block; }
 
-    .photo-preview {
-      width: 100%;
-      max-height: 200px;
-      object-fit: cover;
-      border-radius: var(--radius-md);
-      margin-top: 10px;
+    /* Modal de Cámara Scanner */
+    #scanner-modal {
       display: none;
+      position: fixed;
+      top: 0; left: 0; width: 100%; height: 100%;
+      background: rgba(0,0,0,0.95);
+      z-index: 1000;
+      padding: 20px;
+      text-align: center;
     }
   </style>
 </head>
 <body>
 
-  <!-- Modal Login / Recuperación -->
+  <!-- Modal Login -->
   <div id="login-screen">
     <div class="login-card">
       <div style="font-size: 2.5rem; margin-bottom: 8px;">⚙️</div>
       <h2 style="margin-bottom: 12px;">RepuestosPro</h2>
-      
-      <!-- Formulario de Login -->
       <form id="login-form" onsubmit="handleLogin(event)">
         <div class="form-group"><input type="email" id="login-email" placeholder="Correo" required></div>
         <div class="form-group"><input type="password" id="login-pass" placeholder="Contraseña" required></div>
-        <button type="submit" class="btn-primary" style="width: 100%;">Ingresar</button>
-        <p style="margin-top: 14px;">
-          <a href="#" onclick="showResetPassword(event)" style="color: #60a5fa; font-size: 0.85rem; text-decoration: none;">¿Olvidaste tu contraseña?</a>
-        </p>
-      </form>
-
-      <!-- Formulario para Recuperar Contraseña -->
-      <form id="reset-form" style="display: none;" onsubmit="handleResetPassword(event)">
-        <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 12px;">Ingresá tu correo y definí una nueva contraseña:</p>
-        <div class="form-group"><input type="email" id="reset-email" placeholder="Correo registrado" required></div>
-        <div class="form-group"><input type="password" id="reset-new-pass" placeholder="Nueva Contraseña" required></div>
-        <button type="submit" class="btn-primary" style="width: 100%;">Guardar Nueva Contraseña</button>
-        <button type="button" class="btn-outline" style="margin-top: 8px;" onclick="hideResetPassword(event)">Volver al Login</button>
+        <button type="submit" class="btn-primary">Ingresar</button>
       </form>
     </div>
+  </div>
+
+  <!-- Modal Cámara / Escáner de Código de Barras -->
+  <div id="scanner-modal">
+    <h3 style="color:white; margin-bottom: 15px; margin-top: 20px;">📷 Escaneando código...</h3>
+    <div style="max-width: 400px; margin: 0 auto; border-radius: 14px; overflow: hidden; border: 2px solid #3b82f6;">
+      <video id="interactive-video" style="width: 100%; display: block;"></video>
+    </div>
+    <button type="button" class="btn-outline" style="max-width: 200px; margin: 20px auto;" onclick="stopScanner()">Cerrar Cámara</button>
   </div>
 
   <header>
@@ -453,23 +436,23 @@
       <div class="search-wrapper">
         <div class="search-input-group">
           <span class="search-icon">🔍</span>
-          <input type="text" id="search-input" placeholder="Buscar buje, código, modelo..." oninput="renderProducts()">
+          <input type="text" id="search-input" placeholder="Buscar por nombre, código o equivalencia..." oninput="renderProducts()">
         </div>
+        <button class="btn-scan-cam" onclick="startScanner('search')" title="Escanear con cámara">📷</button>
       </div>
 
-      <!-- ÍNDICE DE MARCAS DE AUTO -->
+      <!-- FILTROS -->
       <div class="filter-section">
-        <div class="filter-title">🚗 Seleccionar Marca de Auto:</div>
+        <div class="filter-title">🚗 Marca de Auto:</div>
         <div class="chips-row" id="brand-chips"></div>
       </div>
 
-      <!-- ÍNDICE DE CATEGORÍAS -->
       <div class="filter-section">
-        <div class="filter-title">📂 Categoría / Tipo:</div>
+        <div class="filter-title">📂 Categoría:</div>
         <div class="chips-row" id="category-chips"></div>
       </div>
 
-      <!-- LISTADO DE PRODUCTOS -->
+      <!-- LISTADO -->
       <div id="product-list"></div>
 
     </div>
@@ -477,19 +460,19 @@
     <!-- TAB CARGAR -->
     <div id="tab-add" class="tab-content">
       <div class="form-card">
-        <h3 id="form-header-title" style="margin-bottom: 16px;">⚡ Cargar Nuevo Repuesto</h3>
+        <h3 id="form-header-title" style="margin-bottom: 16px;">⚡ Cargar o Editar Repuesto</h3>
         
         <form id="add-form" onsubmit="saveProduct(event)">
           <input type="hidden" id="p-editing-id" value="">
 
           <div class="form-group">
             <label>Nombre del Repuesto *</label>
-            <input type="text" id="p-name" placeholder="Ej: Buje Parrilla / Soporte Motor" required>
+            <input type="text" id="p-name" placeholder="Ej: Filtro de Aceite" required>
           </div>
 
           <div class="form-row">
             <div class="form-group">
-              <label>Marca del Auto *</label>
+              <label>Marca de Auto *</label>
               <select id="p-auto-brand">
                 <option value="Ford">Ford</option>
                 <option value="Fiat">Fiat</option>
@@ -506,41 +489,40 @@
             <div class="form-group">
               <label>Categoría *</label>
               <select id="p-cat">
+                <option value="Filtros">Filtros</option>
                 <option value="Bujes / Tacos / Gomitas">Bujes / Tacos / Gomitas</option>
                 <option value="Soportes de Motor">Soportes de Motor</option>
                 <option value="Focadura / Iluminación">Focadura / Iluminación</option>
                 <option value="Aceites / Lubricantes">Aceites / Lubricantes</option>
-                <option value="Filtros">Filtros</option>
                 <option value="Frenos">Frenos</option>
                 <option value="Otros">Otros</option>
               </select>
             </div>
           </div>
 
+          <div class="form-row">
+            <div class="form-group">
+              <label>Código de Pieza (Principal)</label>
+              <div style="display:flex; gap:6px;">
+                <input type="text" id="p-code" placeholder="Ej: W712">
+                <button type="button" class="btn-scan-cam" style="padding: 0 10px; font-size:1rem;" onclick="startScanner('form-code')">📷</button>
+              </div>
+            </div>
+            <div class="form-group">
+              <label>Marca Fabricante</label>
+              <input type="text" id="p-brand" placeholder="Ej: Mann / Fram">
+            </div>
+          </div>
+
           <div class="form-group">
-            <label>Marca del Repuesto (Fabricante)</label>
-            <input type="text" id="p-brand" placeholder="Ej: Sampel / Osram">
+            <label>Equivalencias / Códigos Cruzados (¡Clave para buscar!)</label>
+            <input type="text" id="p-eq" placeholder="Ej: PH2870, Tecneco OL712, Fram PH5">
+            <small style="color:var(--text-muted); font-size:0.72rem;">Separalos con comas para que aparezcan en las búsquedas.</small>
           </div>
 
           <div class="form-group">
             <label>Modelos Compatibles</label>
-            <input type="text" id="p-apps" placeholder="Ej: Escort, Focus, F100">
-          </div>
-
-          <div class="form-group">
-            <label>Equivalencias / Código Cruzado</label>
-            <input type="text" id="p-eq" placeholder="Ej: Mann W712">
-          </div>
-
-          <div class="form-row">
-            <div class="form-group">
-              <label>Código de Pieza</label>
-              <input type="text" id="p-code" placeholder="Ej: BU-104">
-            </div>
-            <div class="form-group">
-              <label>Ubicación</label>
-              <input type="text" id="p-location" placeholder="Estante A2">
-            </div>
+            <input type="text" id="p-apps" placeholder="Ej: Gol Trend, Voyage, Fox">
           </div>
 
           <div class="form-row">
@@ -555,12 +537,17 @@
           </div>
 
           <div class="form-group">
-            <label>Foto</label>
-            <input type="file" accept="image/*" onchange="handlePhotoUpload(event)">
-            <img id="photo-preview" class="photo-preview" alt="Vista Previa">
+            <label>Ubicación</label>
+            <input type="text" id="p-location" placeholder="Estante A2">
           </div>
 
-          <button type="submit" id="btn-submit-form" class="btn-primary" style="width: 100%; margin-top: 10px;">💾 Guardar Repuesto</button>
+          <div class="form-group">
+            <label>Foto</label>
+            <input type="file" accept="image/*" onchange="handlePhotoUpload(event)">
+            <img id="photo-preview" style="width:100%; max-height:150px; object-fit:cover; border-radius:10px; margin-top:8px; display:none;" alt="Preview">
+          </div>
+
+          <button type="submit" id="btn-submit-form" class="btn-primary" style="margin-top: 10px;">💾 Guardar Repuesto</button>
           <button type="button" id="btn-cancel-edit" class="btn-outline" style="margin-top: 8px; display: none;" onclick="resetForm()">Cancelar</button>
         </form>
       </div>
@@ -578,9 +565,10 @@
     let currentPhotoBase64 = '';
     let selectedBrandFilter = 'TODAS';
     let selectedCategoryFilter = 'TODAS';
+    let codeReader = new ZXing.BrowserBarcodeReader();
 
     const BRANDS_LIST = ["TODAS", "Ford", "Fiat", "Chevrolet", "Volkswagen", "Renault", "Peugeot", "Citroën", "Toyota", "Universal / Multimarca"];
-    const CATEGORIES_LIST = ["TODAS", "Bujes / Tacos / Gomitas", "Soportes de Motor", "Focadura / Iluminación", "Aceites / Lubricantes", "Filtros", "Frenos", "Otros"];
+    const CATEGORIES_LIST = ["TODAS", "Filtros", "Bujes / Tacos / Gomitas", "Soportes de Motor", "Focadura / Iluminación", "Aceites / Lubricantes", "Frenos", "Otros"];
 
     function checkAuth() {
       const activeUser = localStorage.getItem('autopartes_session');
@@ -593,49 +581,48 @@
     function handleLogin(e) {
       e.preventDefault();
       const email = document.getElementById('login-email').value;
-      const pass = document.getElementById('login-pass').value;
-
-      // Verifica si existe contraseña guardada; si es la primera vez para ese correo, la establece automáticamente
-      const savedPass = localStorage.getItem('user_pass_' + email);
-      
-      if (savedPass && savedPass !== pass) {
-        alert('Contraseña incorrecta. Si la olvidaste, usá el enlace de abajo para recuperarla.');
-        return;
-      }
-
-      if (!savedPass) {
-        localStorage.setItem('user_pass_' + email, pass);
-      }
-
       localStorage.setItem('autopartes_session', email);
       checkAuth();
     }
 
-    function showResetPassword(e) {
-      e.preventDefault();
-      document.getElementById('login-form').style.display = 'none';
-      document.getElementById('reset-form').style.display = 'block';
-    }
-
-    function hideResetPassword(e) {
-      e.preventDefault();
-      document.getElementById('reset-form').style.display = 'none';
-      document.getElementById('login-form').style.display = 'block';
-    }
-
-    function handleResetPassword(e) {
-      e.preventDefault();
-      const email = document.getElementById('reset-email').value;
-      const newPass = document.getElementById('reset-new-pass').value;
-
-      if (!email || !newPass) return;
-
-      localStorage.setItem('user_pass_' + email, newPass);
-      alert('¡Contraseña actualizada con éxito! Ya podés iniciar sesión con tu nueva clave.');
+    /* SISTEMA DE CÁMARA / ESCÁNER INTELIGENTE */
+    function startScanner(mode) {
+      document.getElementById('scanner-modal').style.display = 'block';
       
-      document.getElementById('reset-email').value = '';
-      document.getElementById('reset-new-pass').value = '';
-      hideResetPassword(e);
+      codeReader.decodeFromVideoDevice(null, 'interactive-video', (result, err) => {
+        if (result) {
+          const scannedCode = result.text.trim();
+          stopScanner();
+
+          if (mode === 'search') {
+            // Buscador: Busca si existe por Código o por Equivalencias
+            document.getElementById('search-input').value = scannedCode;
+            renderProducts();
+          } else if (mode === 'form-code') {
+            // Cargando/Buscando desde el formulario
+            const existing = products.find(p => p.code === scannedCode || (p.equivalences && p.equivalences.toLowerCase().includes(scannedCode.toLowerCase())));
+            
+            if (existing) {
+              // Si ya existe, te lo abre para editarlo
+              alert(`¡El producto "${existing.name}" ya existe con este código! Abriendo para actualizar...`);
+              editProduct(existing.id);
+            } else {
+              // Si no existe, te llena el campo de código automáticamente
+              document.getElementById('p-code').value = scannedCode;
+              switchTab('add');
+            }
+          }
+        }
+      }).catch(err => {
+        console.error("Error al iniciar cámara: ", err);
+        alert("No se pudo iniciar la cámara.");
+        stopScanner();
+      });
+    }
+
+    function stopScanner() {
+      codeReader.reset();
+      document.getElementById('scanner-modal').style.display = 'none';
     }
 
     function renderFilterChips() {
@@ -646,11 +633,7 @@
         btn.type = 'button';
         btn.className = `chip-btn ${selectedBrandFilter === b ? 'active-brand' : ''}`;
         btn.innerText = `🚗 ${b}`;
-        btn.onclick = () => {
-          selectedBrandFilter = b;
-          renderFilterChips();
-          renderProducts();
-        };
+        btn.onclick = () => { selectedBrandFilter = b; renderFilterChips(); renderProducts(); };
         bContainer.appendChild(btn);
       });
 
@@ -661,11 +644,7 @@
         btn.type = 'button';
         btn.className = `chip-btn ${selectedCategoryFilter === cat ? 'active-cat' : ''}`;
         btn.innerText = `📂 ${cat}`;
-        btn.onclick = () => {
-          selectedCategoryFilter = cat;
-          renderFilterChips();
-          renderProducts();
-        };
+        btn.onclick = () => { selectedCategoryFilter = cat; renderFilterChips(); renderProducts(); };
         cContainer.appendChild(btn);
       });
     }
@@ -676,9 +655,9 @@
         const reader = new FileReader();
         reader.onload = function(e) {
           currentPhotoBase64 = e.target.result;
-          const imgPreview = document.getElementById('photo-preview');
-          imgPreview.src = currentPhotoBase64;
-          imgPreview.style.display = 'block';
+          const img = document.getElementById('photo-preview');
+          img.src = currentPhotoBase64;
+          img.style.display = 'block';
         };
         reader.readAsDataURL(file);
       }
@@ -692,14 +671,14 @@
         id: editingId ? Number(editingId) : Date.now(),
         name: document.getElementById('p-name').value,
         autoBrand: document.getElementById('p-auto-brand').value,
-        brand: document.getElementById('p-brand').value || 'Genérico',
         category: document.getElementById('p-cat').value,
-        applications: document.getElementById('p-apps').value || 'Varias',
-        equivalences: document.getElementById('p-eq').value || '',
         code: document.getElementById('p-code').value || 'S/C',
-        location: document.getElementById('p-location').value || 'Sin ubicación',
+        brand: document.getElementById('p-brand').value || 'Genérico',
+        equivalences: document.getElementById('p-eq').value || '',
+        applications: document.getElementById('p-apps').value || 'Varias',
         price: parseFloat(document.getElementById('p-price').value) || 0,
         stock: parseInt(document.getElementById('p-stock').value) || 0,
+        location: document.getElementById('p-location').value || 'Sin ubicación',
         photo: currentPhotoBase64
       };
 
@@ -719,26 +698,27 @@
     function renderProducts() {
       const list = document.getElementById('product-list');
       list.innerHTML = '';
-
       const term = document.getElementById('search-input').value.toLowerCase().trim();
 
       const filtered = products.filter(p => {
         const autoB = p.autoBrand || 'Universal / Multimarca';
         const matchBrand = (selectedBrandFilter === 'TODAS') || (autoB === selectedBrandFilter);
         const matchCat = (selectedCategoryFilter === 'TODAS') || (p.category === selectedCategoryFilter);
+        
+        // Búsqueda inteligente que incluye nombre, código principal Y equivalencias
         const matchSearch = p.name.toLowerCase().includes(term) ||
           p.code.toLowerCase().includes(term) ||
+          (p.equivalences && p.equivalences.toLowerCase().includes(term)) ||
           (p.applications && p.applications.toLowerCase().includes(term));
 
         return matchBrand && matchCat && matchSearch;
       });
 
       if (filtered.length === 0) {
-        list.innerHTML = `<p style="text-align:center; padding:30px; color:var(--text-muted);">No hay repuestos registrados bajo esta marca o filtro.</p>`;
+        list.innerHTML = `<p style="text-align:center; padding:30px; color:var(--text-muted);">No se encontraron repuestos con esos filtros.</p>`;
         return;
       }
 
-      // Agrupar por Marca
       const grouped = {};
       filtered.forEach(p => {
         const b = p.autoBrand || 'Universal / Multimarca';
@@ -749,7 +729,7 @@
       for (const [brandName, items] of Object.entries(grouped)) {
         const header = document.createElement('div');
         header.className = 'brand-group-header';
-        header.innerHTML = `🚗 MARCA: ${brandName.toUpperCase()}`;
+        header.innerHTML = `🚗 ${brandName.toUpperCase()}`;
         list.appendChild(header);
 
         items.forEach(p => {
@@ -761,6 +741,7 @@
               <div>
                 <div class="product-title">${p.name}</div>
                 <div style="font-size:0.8rem; color:var(--text-muted);">${p.brand} • ${p.category}</div>
+                ${p.equivalences ? `<div class="equiv-banner">🔄 Eq: ${p.equivalences}</div>` : ''}
               </div>
               <div class="code-chip">${p.code}</div>
             </div>
@@ -787,13 +768,13 @@
       document.getElementById('p-name').value = p.name;
       document.getElementById('p-auto-brand').value = p.autoBrand || 'Ford';
       document.getElementById('p-cat').value = p.category;
-      document.getElementById('p-brand').value = p.brand;
-      document.getElementById('p-apps').value = p.applications;
-      document.getElementById('p-eq').value = p.equivalences || '';
       document.getElementById('p-code').value = p.code;
-      document.getElementById('p-location').value = p.location;
+      document.getElementById('p-brand').value = p.brand;
+      document.getElementById('p-eq').value = p.equivalences || '';
+      document.getElementById('p-apps').value = p.applications;
       document.getElementById('p-price').value = p.price;
       document.getElementById('p-stock').value = p.stock;
+      document.getElementById('p-location').value = p.location;
 
       currentPhotoBase64 = p.photo || '';
       if (currentPhotoBase64) {
@@ -809,7 +790,7 @@
     }
 
     function deleteProduct(id) {
-      if (confirm('¿Borrar repuesto?')) {
+      if (confirm('¿Eliminar este repuesto?')) {
         products = products.filter(p => p.id != id);
         localStorage.setItem('autopartes_stock', JSON.stringify(products));
         renderProducts();
@@ -821,7 +802,7 @@
       document.getElementById('p-editing-id').value = '';
       currentPhotoBase64 = '';
       document.getElementById('photo-preview').style.display = 'none';
-      document.getElementById('form-header-title').innerText = '⚡ Cargar Nuevo Repuesto';
+      document.getElementById('form-header-title').innerText = '⚡ Cargar o Editar Repuesto';
       document.getElementById('btn-submit-form').innerText = '💾 Guardar Repuesto';
       document.getElementById('btn-cancel-edit').style.display = 'none';
     }
@@ -839,7 +820,6 @@
       }
     }
 
-    // Inicializar al cargar
     window.onload = function() {
       checkAuth();
       renderFilterChips();
