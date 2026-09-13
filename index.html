@@ -646,14 +646,19 @@
             </div>
           </div>
 
-          <!-- Selección de foto desde Cámara o Galería -->
+          <!-- Selección de foto mejorada con opción de Galería y Link -->
           <div class="form-group" style="margin-top: 10px;">
             <label>Foto del Producto</label>
-            <label for="camera-input" class="btn-outline">
-              🖼️ Elegir de la Galería / Sacar Foto
-            </label>
-            <!-- Al quitar capture, el celular abre menú para elegir Galería, Archivos o Cámara -->
-            <input type="file" id="camera-input" accept="image/*" style="display: none;" onchange="handlePhotoUpload(event)">
+            <div style="display: flex; gap: 8px;">
+              <label for="camera-input" class="btn-outline" style="flex: 1;">
+                📷 / 🖼️ Elegir Foto (Galería o Cámara)
+              </label>
+              <button type="button" class="btn-outline" style="width: auto; padding: 0 14px;" onclick="promptImageUrl()" title="Pegar link de Internet">
+                🌐 Link
+              </button>
+            </div>
+
+            <input type="file" id="camera-input" accept="image/jpeg, image/png, image/webp, image/*" style="display: none;" onchange="handlePhotoUpload(event)">
             <img id="photo-preview" class="photo-preview" alt="Foto subida">
           </div>
 
@@ -699,6 +704,16 @@
           imgPreview.style.display = 'block';
         };
         reader.readAsDataURL(file);
+      }
+    }
+
+    function promptImageUrl() {
+      const url = prompt('Pegá la dirección (URL) de la imagen de Internet:');
+      if (url) {
+        currentPhotoBase64 = url;
+        const imgPreview = document.getElementById('photo-preview');
+        imgPreview.src = url;
+        imgPreview.style.display = 'block';
       }
     }
 
